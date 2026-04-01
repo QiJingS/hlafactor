@@ -1,4 +1,4 @@
 ## HLAFACTOR
-## author: Qijing Shen
+### author: Qijing Shen
 Hey, Thanks for viewing and using the hlafactors.
 
