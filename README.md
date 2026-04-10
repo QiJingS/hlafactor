@@ -1,5 +1,7 @@
 # 🧬 HLAfactor
 
+<img src="Qijing_TCR.jpeg" width="600">
+
 **HLAfactor** is a command-line tool for **HLA (Human Leukocyte Antigen) quality control (QC)** and **downstream immunogenetic analysis**.
 
 It supports multiple analytical modules including heterozygosity, expression, supertypes, and NK-related ligand markers.
