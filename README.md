@@ -1,8 +1,16 @@
 # HLAfactor
-## author: Qijing Shen
-Hey! Thanks for viewing this page and using the hlafactors.
 
-### Basic usage
+**HLAfactor** is a command-line tool for **HLA (Human Leukocyte Antigen) quality control (QC)** and **downstream immunogenetic analysis**.
 
-### Features calculation
+---
 
+## 👤 Author
+
+Qijing Shen  
+
+---
+
+## 🚀 Basic Usage
+
+```bash
+hlafactor [options]
