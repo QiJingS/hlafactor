@@ -26,7 +26,7 @@ chmod +x hlafactor
 
 #### macOS
 ```bash
-# (Add your macOS binary link here)
+
 ```
 
 ---
