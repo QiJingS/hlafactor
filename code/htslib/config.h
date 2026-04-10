@@ -12,58 +12,58 @@
    accurate PACKAGE_VERSION as computed by the Makefile.  */
 
 /* Define if HTSlib should enable GCS support. */
-#define ENABLE_GCS 1
+/* #undef ENABLE_GCS */
 
 /* Define if HTSlib should enable plugins. */
 /* #undef ENABLE_PLUGINS */
 
 /* Define if HTSlib should enable S3 support. */
-#define ENABLE_S3 1
+/* #undef ENABLE_S3 */
 
 /* Define if __attribute__((constructor)) is available. */
 #define HAVE_ATTRIBUTE_CONSTRUCTOR 1
 
 /* Define if __attribute__((target("ssse3"))) works. */
-/* #undef HAVE_ATTRIBUTE_TARGET_SSSE3 */
+#define HAVE_ATTRIBUTE_TARGET_SSSE3 1
 
 /* Defined to 1 if rANS source using AVX2 can be compiled. */
-/* #undef HAVE_AVX2 */
+#define HAVE_AVX2 1
 
 /* Defined to 1 if rANS source using AVX512F can be compiled. */
-/* #undef HAVE_AVX512 */
+#define HAVE_AVX512 1
 
 /* Defined to 1 if __builtin_cpu_supports("ssse3") works */
-/* #undef HAVE_BUILTIN_CPU_SUPPORT_SSSE3 */
+#define HAVE_BUILTIN_CPU_SUPPORT_SSSE3 1
 
 /* Define if clock_gettime exists and accepts CLOCK_PROCESS_CPUTIME_ID. */
 #define HAVE_CLOCK_GETTIME_CPUTIME 1
 
 /* Define if you have the Common Crypto library. */
-#define HAVE_COMMONCRYPTO 1
+/* #undef HAVE_COMMONCRYPTO */
 
 /* Define to 1 if you have the declaration of 'AI_ADDRCONFIG', and to 0 if you
    don't. */
-#define HAVE_DECL_AI_ADDRCONFIG 1
+/* #undef HAVE_DECL_AI_ADDRCONFIG */
 
 /* Define to 1 if you have the declaration of 'AI_V4MAPPED', and to 0 if you
    don't. */
-#define HAVE_DECL_AI_V4MAPPED 1
+/* #undef HAVE_DECL_AI_V4MAPPED */
 
 /* Define to 1 if you have the declaration of 'EHOSTDOWN', and to 0 if you
    don't. */
-#define HAVE_DECL_EHOSTDOWN 0
+/* #undef HAVE_DECL_EHOSTDOWN */
 
 /* Define to 1 if you have the declaration of 'ENONET', and to 0 if you don't.
    */
-#define HAVE_DECL_ENONET 0
+/* #undef HAVE_DECL_ENONET */
 
 /* Define to 1 if you have the declaration of '__cpuid_count', and to 0 if you
    don't. */
-#define HAVE_DECL___CPUID_COUNT 0
+#define HAVE_DECL___CPUID_COUNT 1
 
 /* Define to 1 if you have the declaration of '__get_cpuid_max', and to 0 if
    you don't. */
-#define HAVE_DECL___GET_CPUID_MAX 0
+#define HAVE_DECL___GET_CPUID_MAX 1
 
 /* Define to 1 if you have the 'drand48' function. */
 #define HAVE_DRAND48 1
@@ -72,13 +72,13 @@
 /* #undef HAVE_ELF_AUX_INFO */
 
 /* Define if epoll is available */
-#define HAVE_EPOLL 0
+/* #undef HAVE_EPOLL */
 
 /* Define if using an external libhtscodecs */
 /* #undef HAVE_EXTERNAL_LIBHTSCODECS */
 
 /* Define to 1 if you have the 'fdatasync' function. */
-/* #undef HAVE_FDATASYNC */
+#define HAVE_FDATASYNC 1
 
 /* Define if you have FreeBSD-type sendfile */
 /* #undef HAVE_FREEBSD_SENDFILE */
@@ -87,7 +87,7 @@
 #define HAVE_FSYNC 1
 
 /* Define to 1 if you have the 'getauxval' function. */
-/* #undef HAVE_GETAUXVAL */
+#define HAVE_GETAUXVAL 1
 
 /* Define to 1 if you have the 'getpagesize' function. */
 #define HAVE_GETPAGESIZE 1
@@ -102,10 +102,10 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the 'bz2' library (-lbz2). */
-#define HAVE_LIBBZ2 1
+/* #undef HAVE_LIBBZ2 */
 
 /* Define if libcurl file access is enabled. */
-#define HAVE_LIBCURL 1
+/* #undef HAVE_LIBCURL */
 
 /* Define if libdeflate is available. */
 /* #undef HAVE_LIBDEFLATE */
@@ -120,16 +120,16 @@
 /* #undef HAVE_LINUX_SENDFILE */
 
 /* Define to 1 if you have the <lzma.h> header file. */
-/* #undef HAVE_LZMA_H */
+#define HAVE_LZMA_H 1
 
 /* Define if you have macOS-type sendfile */
-#define HAVE_MACOS_SENDFILE 1
+/* #undef HAVE_MACOS_SENDFILE */
 
 /* Define to 1 if you have a working 'mmap' system call. */
 #define HAVE_MMAP 1
 
 /* Defined to 1 if rANS source using popcnt can be compiled. */
-/* #undef HAVE_POPCNT */
+#define HAVE_POPCNT 1
 
 /* Define to 1 if you have the 'posix_memalign' function. */
 #define HAVE_POSIX_MEMALIGN 1
@@ -138,10 +138,10 @@
 /* #undef HAVE_SRAND48_DETERMINISTIC */
 
 /* Defined to 1 if rANS source using SSE4.1 can be compiled. */
-/* #undef HAVE_SSE4_1 */
+#define HAVE_SSE4_1 1
 
 /* Defined to 1 if rANS source using SSSE3 can be compiled. */
-/* #undef HAVE_SSSE3 */
+#define HAVE_SSSE3 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #define HAVE_STDINT_H 1
@@ -171,7 +171,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the <x86intrin.h> header file. */
-/* #undef HAVE_X86INTRIN_H */
+#define HAVE_X86INTRIN_H 1
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "samtools-help@lists.sourceforge.net"
@@ -195,7 +195,7 @@
 /* #undef PLUGIN_EXT */
 
 /* Define if epoll edge triggering is available */
-#define PW_HAVE_EDGE 0
+/* #undef PW_HAVE_EDGE */
 
 /* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
@@ -205,7 +205,7 @@
 
 /* Prevent unaligned access in htscodecs SSE4 rANS codec */
 #if defined(HTS_ALLOW_UNALIGNED) && HTS_ALLOW_UNALIGNED == 0
-/* #undef UBSAN */
+#define UBSAN 1
 #endif
 
 /* Number of bits in a file offset, on hosts where this is settable. */

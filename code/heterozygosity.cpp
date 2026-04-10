@@ -21,11 +21,12 @@ struct PairKeyHash {
         return h1 ^ (h2 << 1);
     }
 };
-std::unordered_map<PairKey, double, PairKeyHash> read_reference_fh(const std::string& path) {
+std::unordered_map<PairKey, double, PairKeyHash> read_reference_fh(const std::string& pt) {
     std::unordered_map<PairKey, double, PairKeyHash> mapping;
+    auto path = resource_path(pt);
     std::ifstream fin(path);
     if (!fin.is_open()) {
-        throw std::runtime_error("ERROR: cannot open FH file: " + path);
+        throw std::runtime_error("ERROR: cannot open FH file at data_input/heter_A/B/C.txt");
     }
     std::string line;
     bool first_line = true;
@@ -61,9 +62,9 @@ struct ind_heter
 
 std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice) {
     std::vector<ind_heter> saver;
-    auto fh_map_A = read_reference_fh("../data_input/heter_A.txt");
-    auto fh_map_B = read_reference_fh("../data_input/heter_B.txt");
-    auto fh_map_C = read_reference_fh("../data_input/heter_C.txt");
+    auto fh_map_A = read_reference_fh("heter_A.txt");
+    auto fh_map_B = read_reference_fh("heter_B.txt");
+    auto fh_map_C = read_reference_fh("heter_C.txt");
 
     auto samples = parse_file(arg, argv);
 
@@ -87,7 +88,7 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
                             het_hom_ind_temp = "Hom";
                             temp_alleles.push_back(a.alleles[k]);
                             fh_value = 0;
-                        } else {
+                        } else if (int_v == 1) {
                             temp_alleles.push_back(a.alleles[k]);
                             het_hom_ind_temp = "Het";
                         }
@@ -115,7 +116,10 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
                 }
             std::string alleles_str;
             for (const auto& allele : temp_alleles) {
-                alleles_str += allele + " ";
+                alleles_str += allele + "/";
+            }
+            if(alleles_str.size() == 0){
+                alleles_str = "/";
             }
             saver.push_back({s.sampleid, locus_name, het_hom_ind_temp, alleles_str, fh_value});
         }

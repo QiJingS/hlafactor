@@ -8,14 +8,14 @@ struct ind_supertypes
     std::vector<double> dosages;
 };
 std::unordered_map<std::string, std::string> reference_supertypes(const std::string& folder_name) {
-    const std::string path = "../data_input/" + folder_name;
+    auto path = resource_path(folder_name);
+    // std::cout << "path = " << path << std::endl;
     std::ifstream fin(path);
     if (!fin.is_open()) {
-        throw std::runtime_error("ERROR: could not open file: " + path);
+        throw std::runtime_error("ERROR: could not open file at data_input/supertype.txt");
     }
     std::string line;
     std::vector<std::string> supertype_names_saver;
-    // define harshtable to save the supertypes reference
     std::unordered_map<std::string, std::string> supertypes_reference;
     if (std::getline(fin, line)) {
         std::istringstream iss(line);
@@ -24,7 +24,7 @@ std::unordered_map<std::string, std::string> reference_supertypes(const std::str
             supertype_names_saver.push_back(name);
         }
     }
-    int ind_temp = 0;
+    int ind_temp;
     while (std::getline(fin, line)) {
         ind_temp = 0;
         std::istringstream iss(line);
@@ -43,13 +43,10 @@ std::string getPrefix(const std::string& allele) {
 };
 std::vector <ind_supertypes> supertypes_mapping_data(int argc, char* argv[]){
     std::vector <ind_supertypes> outp;
-    const std::string super_A_folder_name = "superA.txt";
-    const std::string super_B_folder_name = "superB.txt";
-    const std::string super_classII_folder_name = "super_class_II.txt";
-    auto sup_A = reference_supertypes(super_A_folder_name);
-    auto sup_B = reference_supertypes(super_B_folder_name);
-    auto class_II = reference_supertypes(super_classII_folder_name);
-    
+    auto sup_A = reference_supertypes("superA.txt");
+    auto sup_B = reference_supertypes("superB.txt");
+    auto class_II = reference_supertypes("super_class_II.txt");
+
     auto combined = sup_A;
 
     combined.insert(sup_B.begin(), sup_B.end());
@@ -72,7 +69,7 @@ std::vector <ind_supertypes> supertypes_mapping_data(int argc, char* argv[]){
         for (const auto& [locus_name, allele_calls] : s.loci) {
             if (HLA_locus.count(locus_name)) {
                 for(const auto &a : allele_calls){   
-                        if(a.dosages[k] != 0 & a.alleles[k].find(':') != std::string::npos){
+                        if(a.dosages[k] != 0 && a.alleles[k].find(':') != std::string::npos){
                             temp_ind_user_saver.push_back(a.alleles[k]);
                             if(a.dosages[k] == 2){
                                 temp_ind_dosages_saver.push_back(a.dosages[k]);

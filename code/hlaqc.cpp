@@ -153,7 +153,8 @@ void filter_HLA_region(int hg, const std::string& input, const std::string& outp
 
 void function_hla_qc(int argc, char* argv[]) {
     std::string input;
-    std::string output = "filtered.vcf";
+    std::string output;  
+    bool has_output = false;
     int hg = 0;
 
     float af_min = 0, af_max = 0;
@@ -165,8 +166,9 @@ void function_hla_qc(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::string arg = argv[i];
 
-        if ((arg == "-o") && i + 1 < argc) {
+        if (arg == "-o" && i + 1 < argc) {
             output = argv[++i];
+            has_output = true;
         }
         else if (arg == "-hlarg38") {
             hg = 38;
@@ -198,16 +200,18 @@ void function_hla_qc(int argc, char* argv[]) {
     }
 
     if (input.empty()) {
-		std::string error_msg = "!!Error: no input file (-i)";
-		std::cerr << num_decro_stars(error_msg) << '\n' << error_msg << '\n' << num_decro_stars(error_msg) << "\n";
-		return;
+        std::string error_msg = "!!Error: no input file (-i)";
+        std::cerr << error_msg << '\n';
+        return;
+    }
+
+    if (!has_output || output.empty()) {
+        output = "filtered.vcf";
     }
 
     if (hg == 0) {
         std::string error_msg = "!!Error: specify -hlarg37 or -hlarg38";
-        std::cerr << num_decro_stars(error_msg) << '\n'
-                  << error_msg << '\n'
-                  << num_decro_stars(error_msg);
+        std::cerr <<  error_msg << '\n';
         return;
     }
 
@@ -215,7 +219,6 @@ void function_hla_qc(int argc, char* argv[]) {
                       af_min, af_max, use_af_min, use_af_max,
                       r2_min, r2_max, use_r2_min, use_r2_max);
 }
-
 // int main(int argc, char* argv[]) {
 //     if (argc < 2) {
 //         std::cout << "Usage:\n";

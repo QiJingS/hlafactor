@@ -1,11 +1,19 @@
 #include "header.h"
 // #include "output_layer.cpp"
+
 struct OutputSpec {
-    std::filesystem::path dir;   
-    std::string base;            
+    std::filesystem::path dir;
+    std::string base;
 };
+
+void log_info(const std::string& msg) {
+    std::cout << "[INFO] " << msg << '\n';
+}
+
 void error_message(const std::string& msg) {
-    std::cerr << num_decro_stars(msg) << '\n' << msg << '\n' << num_decro_stars(msg) << '\n';
+    std::cerr << num_decro_stars(msg) << '\n'
+              << msg << '\n'
+              << num_decro_stars(msg) << '\n';
 }
 
 OutputSpec get_output_spec(int argc, char* argv[], const std::string& default_base) {
@@ -23,9 +31,11 @@ OutputSpec get_output_spec(int argc, char* argv[], const std::string& default_ba
             break;
         }
     }
+
     if (raw.empty()) {
         std::filesystem::path dir = ".";
         std::filesystem::create_directories(dir);
+        log_info("No output path provided, using default output directory: .");
         return {dir, default_base};
     }
 
@@ -34,30 +44,46 @@ OutputSpec get_output_spec(int argc, char* argv[], const std::string& default_ba
 
     if (ends_with_sep || (std::filesystem::exists(p) && std::filesystem::is_directory(p))) {
         std::filesystem::create_directories(p);
+        log_info("Output directory detected: " + p.string());
         return {p, default_base};
     }
+
     std::filesystem::path dir = p.parent_path();
     if (dir.empty()) dir = ".";
     std::string base = p.stem().string();
     if (base.empty()) base = default_base;
+
     std::filesystem::create_directories(dir);
+
+    log_info("Output file base name: " + base);
+    log_info("Output directory: " + dir.string());
     return {dir, base};
 }
+
 std::filesystem::path make_outfile(const OutputSpec& out, const std::string& suffix) {
-    std::cout << "Results saved to:";
     auto filepath = out.dir / (out.base + suffix + ".txt");
-    std::cout << "  " << filepath << '\n';
+    std::cout << "[INFO] Results will be saved to: " << filepath << '\n';
     return filepath;
 }
+
 void write_expression_outputs(
     const std::vector<alleles_individual_expression_A_C>& summary,
     const OutputSpec& out) {
+
+    log_info("Writing expression outputs...");
+    log_info("Input records: " + std::to_string(summary.size()));
 
     std::filesystem::path outA = make_outfile(out, "_A");
     std::filesystem::path outC = make_outfile(out, "_C");
 
     std::ofstream foutA(outA);
     std::ofstream foutC(outC);
+
+    if (!foutA || !foutC) {
+        throw std::runtime_error("Cannot open expression output files.");
+    }
+
+    size_t countA = 0, countC = 0;
 
     foutA << "SampleID\tlocus\talleles\tmiss_match\texpression_value\n";
     foutC << "SampleID\tlocus\talleles\tmiss_match\texpression_value\n";
@@ -69,17 +95,27 @@ void write_expression_outputs(
                   << expr.alleles << '\t'
                   << expr.missing_alleles << '\t'
                   << expr.expression_value << '\n';
+            ++countA;
         } else if (expr.locus == "HLA_C") {
             foutC << expr.sampleid << '\t'
                   << expr.locus << '\t'
                   << expr.alleles << '\t'
                   << expr.missing_alleles << '\t'
                   << expr.expression_value << '\n';
+            ++countC;
         }
     }
+
+    std::cout << "[INFO] HLA_A rows written: " << countA << '\n';
+    std::cout << "[INFO] HLA_C rows written: " << countC << '\n';
+    log_info("Expression output done.");
 }
+
 void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_summary,
                         const OutputSpec& out) {
+
+    log_info("Writing tapasin outputs...");
+    log_info("Input records: " + std::to_string(taps_summary.size()));
 
     std::filesystem::path outA = make_outfile(out, "_A");
     std::filesystem::path outB = make_outfile(out, "_B");
@@ -91,6 +127,10 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
     std::ofstream foutC(outC);
     std::ofstream foutg(outg);
 
+    if (!foutA || !foutB || !foutC || !foutg) {
+        throw std::runtime_error("Cannot open tapasin output files.");
+    }
+
     foutA << "SampleID\tlocus\talleles\tmiss_match\ttapsA_value\n";
     foutB << "SampleID\tlocus\talleles\tmiss_match\ttapsB_value\n";
     foutC << "SampleID\tlocus\talleles\tmiss_match\ttapsC_value\n";
@@ -98,6 +138,8 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
 
     std::unordered_map<std::string, std::tuple<double, double, double>> sample_scores;
     std::vector<std::string> sample_order;
+
+    size_t countA = 0, countB = 0, countC = 0;
 
     for (const auto& expr : taps_summary) {
         if (!sample_scores.count(expr.sample_id)) {
@@ -118,6 +160,7 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
                   << expr.missing_alleles << '\t'
                   << expr.scores << '\n';
             std::get<0>(entry) = expr.scores;
+            ++countA;
         } else if (expr.locus == "HLA_B") {
             foutB << expr.sample_id << '\t'
                   << expr.locus << '\t'
@@ -125,6 +168,7 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
                   << expr.missing_alleles << '\t'
                   << expr.scores << '\n';
             std::get<1>(entry) = expr.scores;
+            ++countB;
         } else if (expr.locus == "HLA_C") {
             foutC << expr.sample_id << '\t'
                   << expr.locus << '\t'
@@ -132,9 +176,11 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
                   << expr.missing_alleles << '\t'
                   << expr.scores << '\n';
             std::get<2>(entry) = expr.scores;
+            ++countC;
         }
     }
 
+    size_t countG = 0;
     for (const auto& sample_id : sample_order) {
         const auto& scores = sample_scores[sample_id];
         double a = std::get<0>(scores);
@@ -150,15 +196,26 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
               << b << '\t'
               << c << '\t'
               << global_score << '\n';
+        ++countG;
     }
+
+    std::cout << "[INFO] HLA_A rows written: " << countA << '\n';
+    std::cout << "[INFO] HLA_B rows written: " << countB << '\n';
+    std::cout << "[INFO] HLA_C rows written: " << countC << '\n';
+    std::cout << "[INFO] Global rows written: " << countG << '\n';
+    log_info("Tapasin output done.");
 }
-std::vector<std::string> get_sup_names(const std::string& folder_name){ 
-    const std::string path = "../data_input/" + folder_name; std::ifstream fin(path);
+
+std::vector<std::string> get_sup_names(const std::string& folder_name) {
+    const std::string path = resource_path(folder_name);
+    std::ifstream fin(path);
     if (!fin.is_open()) {
         throw std::runtime_error("ERROR: could not open file: " + path);
     }
+
     std::string line;
     std::vector<std::string> supertype_names_saver;
+
     if (std::getline(fin, line)) {
         std::istringstream iss(line);
         std::string name;
@@ -168,8 +225,12 @@ std::vector<std::string> get_sup_names(const std::string& folder_name){
     }
     return supertype_names_saver;
 }
+
 void write_supertypes_app_results(const std::vector<ind_supertypes>& supertypes_res_const,
                                   const OutputSpec& out) {
+    log_info("Writing supertypes output...");
+    log_info("Input records: " + std::to_string(supertypes_res_const.size()));
+
     auto supertype_names_A = get_sup_names("superA.txt");
     auto supertype_names_B = get_sup_names("superB.txt");
     auto supertype_names_classII = get_sup_names("super_class_II.txt");
@@ -181,6 +242,10 @@ void write_supertypes_app_results(const std::vector<ind_supertypes>& supertypes_
 
     std::filesystem::path outg = make_outfile(out, "_supertypes");
     std::ofstream foutg(outg);
+
+    if (!foutg) {
+        throw std::runtime_error("Cannot open supertypes output file.");
+    }
 
     std::string line_names = "SampleID\t";
     for (const auto& n : supertype_names_set) {
@@ -216,20 +281,34 @@ void write_supertypes_app_results(const std::vector<ind_supertypes>& supertypes_
         }
         foutg << '\n';
     }
+
+    std::cout << "[INFO] Supertypes written for samples: " << sample_order.size() << '\n';
+    log_info("Supertypes output done.");
 }
+
 void write_hla_heterozygosity_results(const std::vector<ind_heter>& heter_res,
                                       const OutputSpec& out) {
-    if (heter_res.empty()) return;
+    if (heter_res.empty()) {
+        log_info("Heterozygosity input is empty, skip writing.");
+        return;
+    }
+
+    log_info("Writing heterozygosity output...");
+    log_info("Input records: " + std::to_string(heter_res.size()));
 
     std::filesystem::path outg = make_outfile(out, "_heterozygosity");
     std::ofstream foutg(outg);
+
+    if (!foutg) {
+        throw std::runtime_error("Cannot open heterozygosity output file.");
+    }
 
     std::vector<std::string> locus_set;
     std::string sam1_id = heter_res[0].sampleid;
 
     for (const auto& res : heter_res) {
         if (res.sampleid != sam1_id) break;
-        if(res.locus[0]=='A') continue;
+        if (res.locus[0] == 'A') continue;
         locus_set.push_back(res.locus);
     }
 
@@ -272,11 +351,21 @@ void write_hla_heterozygosity_results(const std::vector<ind_heter>& heter_res,
         }
         foutg << '\n';
     }
+
+    std::cout << "[INFO] Heterozygosity samples written: " << sample_order.size() << '\n';
+    log_info("Heterozygosity output done.");
 }
 
 void write_HLA_variant_NK_results(const std::vector<sample_variants_NK>& NK_res, const OutputSpec& out) {
+    log_info("Writing HLA variant NK output...");
+    log_info("Input records: " + std::to_string(NK_res.size()));
+
     std::filesystem::path outg = make_outfile(out, "_HLA_variant_NK");
     std::ofstream foutg(outg);
+
+    if (!foutg) {
+        throw std::runtime_error("Cannot open HLA variant NK output file.");
+    }
 
     foutg << "SampleID\tAA_B_-21\tAA_B_82\tAA_C_80\n";
     for (const auto& res : NK_res) {
@@ -286,12 +375,19 @@ void write_HLA_variant_NK_results(const std::vector<sample_variants_NK>& NK_res,
         }
         foutg << '\n';
     }
+
+    log_info("HLA variant NK output done.");
 }
 
-
 void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& heter_res,
-                                      const OutputSpec& out) {
-    if (heter_res.empty()) return;
+                                                 const OutputSpec& out) {
+    if (heter_res.empty()) {
+        log_info("Functional heterozygosity input is empty, skip writing.");
+        return;
+    }
+
+    log_info("Writing functional heterozygosity output...");
+    log_info("Input records: " + std::to_string(heter_res.size()));
 
     std::filesystem::path outg = make_outfile(out, "_functional_zygosity");
     std::ofstream foutg(outg);
@@ -302,7 +398,6 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
     std::unordered_map<std::string, std::unordered_map<std::string, ind_heter>> mp;
 
     for (const auto& res : heter_res) {
-        // std::cout << res.locus << std::endl;
         if (res.locus == "HLA_A" || res.locus == "HLA_B" || res.locus == "HLA_C") {
             if (mp[res.sampleid].find(res.locus) == mp[res.sampleid].end()) {
                 mp[res.sampleid][res.locus] = res;
@@ -312,6 +407,7 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
 
     foutg << "sampleid\tHLA_A_allele\tHLA_A_FH\tHLA_B_allele\tHLA_B_FH\tHLA_C_allele\tHLA_C_FH\n";
 
+    size_t sample_count = 0;
     for (const auto& [sampleid, loci] : mp) {
         auto get_allele = [&](const std::string& loc) -> std::string {
             auto it = loci.find(loc);
@@ -328,11 +424,9 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
               << get_allele("HLA_A") << '\t' << get_fh("HLA_A") << '\t'
               << get_allele("HLA_B") << '\t' << get_fh("HLA_B") << '\t'
               << get_allele("HLA_C") << '\t' << get_fh("HLA_C") << '\n';
+        ++sample_count;
     }
+
+    std::cout << "[INFO] Functional heterozygosity samples written: " << sample_count << '\n';
+    log_info("Functional heterozygosity output done.");
 }
-// // int main(int argc, char* argv[]) {
-// //     auto out_spec = get_output_spec(argc, argv, "output");
-// //     auto test = map_het_samples(argc, argv, true);
-// //     write_hla_functional_heterozygosity_results(test, out_spec);
-// //     return 0;
-// // }

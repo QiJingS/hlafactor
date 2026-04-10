@@ -8,11 +8,11 @@ struct ind_alleles_tapasin_score
 };
 
 std::vector<ind_alleles_tapasin_score> load_tapasin_A_B_C() {
-    const std::string path = "../data_input/tapasin.txt";
+    auto path = resource_path("tapasin.txt");
     std::vector<ind_alleles_tapasin_score> taps;
     std::ifstream fin(path);
     if (!fin.is_open()) {
-        throw std::runtime_error("!! ERROR! We need the tapasin data file at: " + path);
+        throw std::runtime_error("!! ERROR! We need the tapasin data file at data_input/tapasin.txt");
     }
     std::string line;
     while(std::getline(fin, line)) {
@@ -58,7 +58,7 @@ std::vector<tapasin_score_per_ind_saver> calculatoer_tapasin_A_B_C_globle(int ar
                 std::unordered_map <std::string, double> ind_temp_dic;
                 for (const auto& call : allele_calls) {
                     for (size_t k = 0; k < call.alleles.size(); ++k) {
-                        if( call.dosages[k] != 0 & call.alleles[k].find(':') != std::string::npos){
+                        if( call.dosages[k] != 0 && call.alleles[k].find(':') != std::string::npos){
                             ind_temp_dic[call.alleles[k]] = call.dosages[k];
                         }      
                     }

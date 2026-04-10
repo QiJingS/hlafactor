@@ -26,9 +26,13 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
+#include <unistd.h>
 #include <htslib/hts.h>
 #include <htslib/vcf.h>
+#include <filesystem>
+#include <stdexcept>
+
+#include <unistd.h>
 
 struct allelescall {
     std::vector<std::string> alleles;
@@ -39,6 +43,23 @@ struct samplerecord {
     std::string sampleid;
     std::map<std::string, std::vector<allelescall>> loci;
 };
+
+
+
+std::filesystem::path get_executable_path() {
+    char buf[PATH_MAX];
+    ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+    if (len == -1) {
+        throw std::runtime_error("Cannot locate executable path");
+    }
+    buf[len] = '\0';
+    return std::filesystem::path(buf);
+}
+
+std::filesystem::path resource_path(const std::string& filename) {
+    const auto exe_dir = get_executable_path().parent_path();
+    return (exe_dir / ".." / "data_input" / filename).lexically_normal();
+}
 
 std::vector<samplerecord> parse_txt_file(const std::string& filename);
 std::vector<samplerecord> parse_dosage_file(const std::string& filename);
