@@ -17,18 +17,20 @@ It supports multiple analytical modules including heterozygosity, expression, su
 
 ### 🔹 Download binaries
 
-#### Linux (x86_64)
+### Linux (x86_64)
 ```bash
-wget http://*****.gz
-tar -xzf hlafactor_linux_x86_64.gz
+wget wget https://github.com/QiJingS/hlafactor/releases/download/v2.1.0/hlafactor-0.0.0-Linux-x86_64.tar.gz
+tar -xzf hlafactor-0.0.0-Linux-x86_64.tar.gz
+cd hlafactor-0.0.0-Linux-x86_64
 chmod +x hlafactor
 ```
-
-#### macOS
 ```bash
-
+macOS 
+wget https://github.com/QiJingS/hlafactor/releases/download/v2.1.0/hlafactor-0.0.0-Darwin-arm64.tar.gz
+tar -xzf hlafactor-0.0.0-Darwin-arm64.tar.gz
+cd hlafactor-0.0.0-Darwin-arm64
+chmod +x hlafactor
 ```
-
 ---
 
 ## 🚀 Basic Usage
