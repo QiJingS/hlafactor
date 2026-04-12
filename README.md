@@ -24,7 +24,7 @@ tar -xzf hlafactor-0.0.0-Linux-x86_64.tar.gz
 cd hlafactor-0.0.0-Linux-x86_64
 chmod +x hlafactor
 ```
-#### macOS 
+### macOS 
 ```bash
 wget https://github.com/QiJingS/hlafactor/releases/download/v2.1.0/hlafactor-0.0.0-Darwin-arm64.tar.gz
 tar -xzf hlafactor-0.0.0-Darwin-arm64.tar.gz
