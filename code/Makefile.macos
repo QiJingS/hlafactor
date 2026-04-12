@@ -8,7 +8,6 @@ PKG_DIR = $(DIST_DIR)/$(APP)-$(VERSION)-$(PLATFORM)
 
 RPATH := -Wl,-rpath,@executable_path/../lib -Wl,-rpath,$(PREFIX)/lib
 HTS_LIB := $(PREFIX)/lib/libhts.dylib
-LIB_GLOB := libhts.dylib*
 PACKAGE_TAR := $(PKG_DIR).tar.gz
 
 include Makefile.common
@@ -19,5 +18,5 @@ package: all
 	mkdir -p $(PKG_DIR)/lib
 	cp $(BUILD_DIR)/$(APP) $(PKG_DIR)/bin/
 	cp README.md $(PKG_DIR)/
-	cp -a $(PREFIX)/lib/$(LIB_GLOB) $(PKG_DIR)/lib/ 2>/dev/null || true
-	tar -czf $(PACKAGE_TAR) -C $(DIST_DIR) $(notdir $(PKG_DIR))
+	cp -a $(PREFIX)/lib/libhts.dylib* $(PKG_DIR)/lib/ 2>/dev/null || true
+	tar -czf $(PACKAGE_TAR) -C $(DIST_DIR) -- $(notdir $(PKG_DIR))

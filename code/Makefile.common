@@ -7,11 +7,14 @@ VERSION ?= 0.1.0
 SRCS := hlafactor.cpp
 OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
 
-CPPFLAGS += -I$(PREFIX)/include -I$(HTSLIB_SRC)
+CPPFLAGS += -I$(PREFIX)/include -I$(HTSLIB_SRC) $(EXTRA_CPPFLAGS)
 CXXFLAGS += -std=c++20 -O2 -Wall -Wextra
 
-LDFLAGS += -L$(PREFIX)/lib
-LDLIBS  += -lhts -lz -lbz2 -llzma -lcurl -lm -lpthread
+HTSLIB_LIBS ?= -lhts -lz -lbz2 -llzma -lcurl -lm -lpthread
+LDFLAGS += -L$(PREFIX)/lib $(EXTRA_LDFLAGS)
+LDLIBS  += $(HTSLIB_LIBS)
+
+HTSLIB_CONFIGURE_FLAGS ?= --disable-plugins
 
 all: $(BUILD_DIR)/$(APP)
 
@@ -22,7 +25,7 @@ $(PREFIX)/.built:
 	@mkdir -p $(PREFIX)
 	@cd $(HTSLIB_SRC) && \
 		( test -x configure || autoreconf -i ) && \
-		./configure --prefix="$(PREFIX)" --disable-plugins && \
+		./configure --prefix="$(PREFIX)" $(HTSLIB_CONFIGURE_FLAGS) && \
 		$(MAKE) clean >/dev/null 2>&1 || true && \
 		$(MAKE) -j1 && \
 		$(MAKE) install
