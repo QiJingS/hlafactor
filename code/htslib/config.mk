@@ -28,7 +28,7 @@
 # in the Makefile to reflect your configuration choices.  If you don't run
 # configure, the main Makefile contains suitable conservative defaults.
 
-prefix       = /gpfs3/well/ansari/users/dqc635/my_software/hlafactor/code/_install/Linux-x86_64
+prefix       = /Users/qijingshen/Desktop/APPWAS/APPWAS/hlafactor/hlafactor/code/_install/Darwin-arm64
 exec_prefix  = ${prefix}
 bindir       = ${exec_prefix}/bin
 includedir   = ${prefix}/include
@@ -43,11 +43,11 @@ RANLIB = ranlib
 CPPFLAGS = 
 CFLAGS   =  -Wall -g -O2 -fvisibility=hidden
 LDFLAGS  =  -fvisibility=hidden
-VERSION_SCRIPT_LDFLAGS = -Wl,-version-script,$(srcprefix)htslib.map
-LIBS     = -llzma -lz -lm 
+VERSION_SCRIPT_LDFLAGS = 
+LIBS     = -llzma -lbz2 -lz 
 
-PLATFORM   = default
-PLUGIN_EXT = .so
+PLATFORM   = Darwin
+PLUGIN_EXT = .bundle
 
 # The default Makefile enables some of the optional files, but we blank
 # them so they can be controlled by configure instead.
@@ -61,7 +61,7 @@ noplugin_LIBS =
 # ifeq/.../endif, +=, and target-specific variables are GNU Make-specific.
 # If you don't have GNU Make, comment out this conditional and note that
 # to enable libcurl you will need to implement the following elsewhere.
-ifeq "libcurl-disabled" "libcurl-enabled"
+ifeq "libcurl-enabled" "libcurl-enabled"
 
 LIBCURL_LIBS = -lcurl
 
@@ -73,11 +73,11 @@ noplugin_LIBS += $(LIBCURL_LIBS)
 
 endif
 
-ifeq "gcs-disabled" "gcs-enabled"
+ifeq "gcs-enabled" "gcs-enabled"
 plugin_OBJS += hfile_gcs.o
 endif
 
-ifeq "s3-disabled" "s3-enabled"
+ifeq "s3-enabled" "s3-enabled"
 plugin_OBJS += hfile_s3.o
 
 CRYPTO_LIBS = 
@@ -112,12 +112,12 @@ LIBS += $(noplugin_LIBS)
 endif
 
 # Extra CFLAGS for specific files
-HTS_CFLAGS_AVX2 = -mavx2 -mpopcnt
-HTS_CFLAGS_AVX512 = -mavx512f -mpopcnt
-HTS_CFLAGS_SSE4 = -msse4.1 -mssse3 -mpopcnt
+HTS_CFLAGS_AVX2 = 
+HTS_CFLAGS_AVX512 = 
+HTS_CFLAGS_SSE4 = 
 
 # Optional ref-cache program
-REF_CACHE_PROGRAMS = 
-REF_CACHE_EXTRA_C_FLAGS = 
+REF_CACHE_PROGRAMS = ref_cache/ref-cache
+REF_CACHE_EXTRA_C_FLAGS =  -Wextra -Wformat -Wformat=2 -Wconversion -Wstrict-aliasing -fstack-protector-strong -mbranch-protection=standard -fno-delete-null-pointer-checks
 REF_CACHE_EXTRA_LD_FLAGS = 
-REF_CACHE_TEST_OPTS = 
+REF_CACHE_TEST_OPTS = --ref-cache-bin ../ref_cache/ref-cache

@@ -1,0 +1,49 @@
+CXX ?= g++
+
+APP := hlafactor
+HTSLIB_SRC ?= $(CURDIR)/htslib
+VERSION ?= 0.1.0
+
+SRCS := hlafactor.cpp
+OBJS = $(SRCS:%.cpp=$(BUILD_DIR)/%.o)
+
+CPPFLAGS += -I$(PREFIX)/include -I$(HTSLIB_SRC)
+CXXFLAGS += -std=c++20 -O2 -Wall -Wextra
+
+LDFLAGS += -L$(PREFIX)/lib
+LDLIBS  += -lhts -lz -lbz2 -llzma -lcurl -lm -lpthread
+
+all: $(BUILD_DIR)/$(APP)
+
+deps: $(PREFIX)/.built
+
+$(PREFIX)/.built:
+	@echo "Building htslib into $(PREFIX)"
+	@mkdir -p $(PREFIX)
+	@cd $(HTSLIB_SRC) && \
+		( test -x configure || autoreconf -i ) && \
+		./configure --prefix="$(PREFIX)" --disable-plugins && \
+		$(MAKE) clean >/dev/null 2>&1 || true && \
+		$(MAKE) -j1 && \
+		$(MAKE) install
+ifeq ($(UNAME_S),Darwin)
+	@install_name_tool -id @rpath/libhts.dylib $(HTS_LIB) || true
+endif
+	@touch $@
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(BUILD_DIR)/$(APP): $(OBJS) $(PREFIX)/.built | $(BUILD_DIR)
+	$(CXX) $(OBJS) -o $@ $(LDFLAGS) $(LDLIBS) $(RPATH)
+
+$(BUILD_DIR)/%.o: %.cpp | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -rf $(BUILD_DIR)
+
+distclean: clean
+	rm -rf $(PREFIX) $(DIST_DIR)
+
+.PHONY: all deps clean distclean
