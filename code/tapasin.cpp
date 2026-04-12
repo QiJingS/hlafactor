@@ -69,23 +69,22 @@ std::vector<tapasin_score_per_ind_saver> calculatoer_tapasin_A_B_C_globle(int ar
                 int v_int;
                 std::string final_alleles;
                 for (const auto& [key, value] : ind_temp_dic) {    
-                    v_int = std::round(value);
-                    if(v_int > 0){
-                        final_alleles  +=  key + " ";
+                    v_int = static_cast<int>(std::lround(value));
+
+                    if (v_int > 0) {
+                        final_alleles += key + " ";
                     }
+
                     if (referece_tapasin_score.count(key)) {                            
                         ind_score += referece_tapasin_score.at(key) * v_int;
-                        if(v_int == 2){
-                            final_alleles += key + ' ';
-                        }
                         two_a_finder += v_int;
-                    }else{
-                        if(v_int > 0){
-                            missing_alleles_tap += key + ' ';
+                    } else {
+                        if (v_int > 0) {
+                            missing_alleles_tap += key + " ";
                         }
                     }
-                }    
-                double final_score = (two_a_finder == 2) ? std::log10(ind_score) : std::numeric_limits<double>::quiet_NaN();
+                }
+                double final_score = (two_a_finder == 2 && missing_alleles_tap.empty()) ? std::log10(ind_score) : std::numeric_limits<double>::quiet_NaN();
                 // std::cout << s.sampleid << '\t' << final_alleles << ' ' << ind_score << '\t' << two_a_finder <<'\t' << final_score << std::endl;
                 tap_summary_saver.push_back({s.sampleid, locus_name, final_alleles, missing_alleles_tap, final_score});
             }

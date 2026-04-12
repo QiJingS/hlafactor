@@ -1,4 +1,57 @@
 #include "header.h"
+
+namespace {
+
+bool is_missing_token(const std::string& token) {
+    return token.empty() ||
+           token == "."   ||
+           token == "NA"  ||
+           token == "na"  ||
+           token == "Na"  ||
+           token == "nA"  ||
+           token == "NaN" ||
+           token == "nan" ||
+           token == "NAN";
+}
+
+double parse_dosage_token(const std::string& token) {
+    if (is_missing_token(token)) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    try {
+        size_t pos = 0;
+        double v = std::stod(token, &pos);
+
+        if (pos != token.size() || !std::isfinite(v)) {
+            return std::numeric_limits<double>::quiet_NaN();
+        }
+        return v;
+    } catch (...) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+}
+
+std::string locus_from_allele_name(const std::string& allele) {
+    auto pos = allele.find('*');
+    if (pos == std::string::npos) {
+        return allele;
+    }
+    return allele.substr(0, pos);
+}
+
+bool starts_with_case_sensitive(const std::string& s, const std::string& prefix) {
+    return s.size() >= prefix.size() &&
+           std::equal(prefix.begin(), prefix.end(), s.begin());
+}
+
+bool is_hla_related_id(const std::string& id) {
+    return starts_with_case_sensitive(id, "HLA") ||
+           starts_with_case_sensitive(id, "AA");
+}
+
+} 
+
 std::vector<samplerecord> parse_txt_file(const std::string& filename) {
     std::ifstream txt_file(filename);
     if (!txt_file.is_open()) {
@@ -12,46 +65,54 @@ std::vector<samplerecord> parse_txt_file(const std::string& filename) {
 
     std::istringstream header_stream(line);
     std::string ID, second_token;
-    header_stream >> ID; 
+    header_stream >> ID;
 
-    std::vector<std::string> locus_names;
-    std::vector<std::string> alleles_names;
+    std::vector<std::string> kept_locus_names;
+    std::vector<std::string> kept_alleles_names;
+    std::vector<bool> keep_flags;
+
     while (header_stream >> second_token) {
-        alleles_names.push_back(second_token);
-        std::string locus_name_i = second_token.substr(0, second_token.find('*'));
-        locus_names.push_back(locus_name_i);
+        bool keep = is_hla_related_id(second_token);
+        keep_flags.push_back(keep);
+        if (keep) {
+            kept_alleles_names.push_back(second_token);
+            kept_locus_names.push_back(locus_from_allele_name(second_token));
+        }
     }
 
     std::vector<samplerecord> result;
+
     while (std::getline(txt_file, line)) {
         if (line.empty()) continue;
+
         std::istringstream line_stream(line);
         std::string sample_id;
-        line_stream >> sample_id;
+        if (!(line_stream >> sample_id)) {
+            continue;
+        }
 
         samplerecord rec;
         rec.sampleid = sample_id;
 
-        int idx_locus = 0;
-        std::string token;
-        while (line_stream >> token && idx_locus < static_cast<int>(locus_names.size())) {
-            double dosage;
-            if (token == "NA" || token == "na" || token == "Na" || token == "nA") {
-                dosage = std::numeric_limits<double>::quiet_NaN();
-            } else {
-                try {
-                    dosage = std::stod(token);
-                } catch (...) {
-                    dosage = std::numeric_limits<double>::quiet_NaN();
-                }
+        size_t idx_kept = 0;
+        for (size_t idx_all = 0; idx_all < keep_flags.size(); ++idx_all) {
+            std::string token;
+            if (!(line_stream >> token)) {
+                token = "NA";
             }
 
-            allelescall call;
-            call.alleles.push_back(alleles_names[idx_locus]);
-            call.dosages.push_back(dosage);
-            rec.loci[locus_names[idx_locus]].push_back(std::move(call));
+            if (!keep_flags[idx_all]) {
+                continue;
+            }
 
-            ++idx_locus;
+            double dosage = parse_dosage_token(token);
+
+            allelescall call;
+            call.alleles.push_back(kept_alleles_names[idx_kept]);
+            call.dosages.push_back(dosage);
+            rec.loci[kept_locus_names[idx_kept]].push_back(std::move(call));
+
+            ++idx_kept;
         }
 
         result.push_back(std::move(rec));
@@ -60,6 +121,9 @@ std::vector<samplerecord> parse_txt_file(const std::string& filename) {
     return result;
 }
 
+// ===========================
+// dosage parser
+// ===========================
 std::vector<samplerecord> parse_dosage_file(const std::string& filename) {
     std::ifstream dosage_file(filename);
     if (!dosage_file.is_open()) {
@@ -73,7 +137,9 @@ std::vector<samplerecord> parse_dosage_file(const std::string& filename) {
 
     std::istringstream header_stream(line);
     std::string chr, snpid, rsid, pos, ref, alt, sample_name;
-    header_stream >> chr >> snpid >> rsid >> pos >> ref >> alt;
+    if (!(header_stream >> chr >> snpid >> rsid >> pos >> ref >> alt)) {
+        throw std::runtime_error("Malformed dosage header: " + filename);
+    }
 
     std::vector<std::string> sample_names_vec;
     while (header_stream >> sample_name) {
@@ -88,44 +154,40 @@ std::vector<samplerecord> parse_dosage_file(const std::string& filename) {
 
     while (std::getline(dosage_file, line)) {
         if (line.empty()) continue;
+
         std::istringstream line_stream(line);
         std::string chromosome, SNPID, rsid2, position, alleleA, alleleB;
-        line_stream >> chromosome >> SNPID >> rsid2 >> position >> alleleA >> alleleB;
+        if (!(line_stream >> chromosome >> SNPID >> rsid2 >> position >> alleleA >> alleleB)) {
+            continue;
+        }
 
-        std::vector<double> dosages;
-        double d;
-        while (line_stream >> d) dosages.push_back(d);
+        if (!is_hla_related_id(SNPID)) {
+            continue;
+        }
 
-        std::string locus = SNPID.substr(0, SNPID.find('*'));
+        std::string locus = locus_from_allele_name(SNPID);
 
         for (size_t i = 0; i < samples.size(); ++i) {
+            std::string token;
+            if (!(line_stream >> token)) {
+                token = "NA";
+            }
+
+            double dosage = parse_dosage_token(token);
+
             allelescall call;
             call.alleles.push_back(SNPID);
-            call.dosages.push_back(dosages[i]);
+            call.dosages.push_back(dosage);
             samples[i].loci[locus].push_back(std::move(call));
         }
     }
 
     return samples;
 }
-void print_samples(const std::vector<samplerecord>& samples) {
-    for (const auto& sample : samples) {
-        std::cout << "Sample ID: " << sample.sampleid << '\n';
-        for (const auto& [locus_name, allele_calls] : sample.loci) {
-            for (const auto& call : allele_calls) {
-                for (size_t k = 0; k < call.alleles.size(); ++k) {
-                    double dosage = call.dosages[k];
-                    std::cout << "  Locus: " << locus_name
-                              << ", Allele: " << call.alleles[k]
-                              << ", Dosage: " << dosage << '\n';
-                }
-            }
-        }
-    }
-}
 
-
-
+// ===========================
+// VCF / BCF parser
+// ===========================
 std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
     htsFile* fp = bcf_open(filename.c_str(), "r");
     if (!fp) {
@@ -157,6 +219,7 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
 
     while (bcf_read(fp, hdr, rec) == 0) {
         bcf_unpack(rec, BCF_UN_ALL);
+
         std::string chrom = bcf_hdr_id2name(hdr, rec->rid);
         std::string pos = std::to_string(rec->pos + 1);
         std::string id = rec->d.id ? rec->d.id : ".";
@@ -167,22 +230,47 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
             locus = locus.substr(0, star_pos);
         }
 
-        int nret = bcf_get_format_float(hdr, rec, "DS", &ds, &nds);
-
-        bool use_ds = (nret > 0);
-        if (!use_ds) {
-            nret = bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
+        if (!is_hla_related_id(id)) {
+            continue;
         }
+
+        int nret_ds = bcf_get_format_float(hdr, rec, "DS", &ds, &nds);
+        bool use_ds = (nret_ds > 0);
+
+        int nret_gt = -1;
+        if (!use_ds) {
+            nret_gt = bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
+        }
+
         for (int i = 0; i < n_samples; ++i) {
-            double dosage = 0.0;
+            double dosage = std::numeric_limits<double>::quiet_NaN();
+
             if (use_ds) {
-                dosage = ds[i];
-            } else if (nret > 0) {
-                int32_t* ptr = &gt[i * 2];  
-                int a1 = bcf_gt_allele(ptr[0]);
-                int a2 = bcf_gt_allele(ptr[1]);
-                dosage = (a1 == 1) + (a2 == 1);
+                if (i < nret_ds) {
+                    float v = ds[i];
+                    if (v != bcf_float_missing &&
+                        v != bcf_float_vector_end &&
+                        std::isfinite(v)) {
+                        dosage = static_cast<double>(v);
+                    }
+                }
+            } else if (nret_gt > 0) {
+                int base = i * 2;
+                if (base + 1 < nret_gt) {
+                    int32_t g1 = gt[base];
+                    int32_t g2 = gt[base + 1];
+
+                    if (!bcf_gt_is_missing(g1) && !bcf_gt_is_missing(g2)) {
+                        int a1 = bcf_gt_allele(g1);
+                        int a2 = bcf_gt_allele(g2);
+
+                        if (a1 >= 0 && a2 >= 0) {
+                            dosage = static_cast<double>((a1 == 1) + (a2 == 1));
+                        }
+                    }
+                }
             }
+
             allelescall call;
             call.alleles.push_back(id);
             call.dosages.push_back(dosage);
@@ -199,59 +287,38 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
     return samples;
 }
 
+// ===========================
+// unified parser entry
+// ===========================
 std::vector<samplerecord> parse_file(int argc, char* argv[]) {
     std::vector<samplerecord> samples;
+
     for (int i = 1; i < argc; ++i) {
         std::string input_s = argv[i];
 
-        if (input_s == "-i") {
+        if (input_s == "-i" && i + 1 < argc) {
             std::string input_adress_names = argv[++i];
             std::filesystem::path filepath(input_adress_names);
 
             std::string ext = filepath.extension().string();
             std::cout << input_adress_names << std::endl;
+
             if (ext == ".txt") {
                 samples = parse_txt_file(input_adress_names);
                 std::cout << "Parsed txt samples: " << samples.size() << " rows\n";
-
             } else if (ext == ".dosage") {
                 samples = parse_dosage_file(input_adress_names);
-                // print_samples(samples);
                 std::cout << "Parsed dosage samples: " << samples.size() << " columns\n";
-
             } else if (ext == ".vcf" || input_adress_names.ends_with(".vcf.gz")) {
                 samples = parse_vcf_htslib(input_adress_names);
-                // print_samples(samples);
                 std::cout << "Parsed VCF samples: " << samples.size() << " columns\n";
+            } else {
+                throw std::runtime_error("Unsupported input format: " + input_adress_names);
             }
 
             break;
         }
     }
+
     return samples;
-};
-// int main(int argc, char* argv[]) {
-//     auto test = parse_file(argc, argv);
-//     print_samples(test);
-//     return 0;
-// }
-// int main(){
-//     // htsFile* fp = bcf_open("/Users/qijingshen/Desktop/Thesis and presentation/code/app_snps_HLA_4digits.vcf", "r");
-//     auto test = parse_vcf_htslib("/Users/qijingshen/Desktop/Thesis and presentation/code/app_snps_HLA_4digits.vcf.gz");
-//     print_samples(test);
-//     // bcf_hdr_t* hdr = bcf_hdr_read(fp);
-//     // bcf1_t* rec = bcf_init();
-//     // while (bcf_read(fp, hdr, rec) == 0) {
-//     //     bcf_unpack(rec, BCF_UN_STR);
-
-//     //     std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t"
-//     //               << rec->pos + 1 << "\t"
-//     //               << rec->d.allele[0] << " -> "
-//     //               << rec->d.allele[1] << "\n";
-//     // }
-//     // bcf_destroy(rec);
-//     // bcf_hdr_destroy(hdr);
-//     // bcf_close(fp);
-//     return 0;
-// }
-
+}

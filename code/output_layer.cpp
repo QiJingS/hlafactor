@@ -396,9 +396,15 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
     }
 
     std::unordered_map<std::string, std::unordered_map<std::string, ind_heter>> mp;
+    std::vector<std::string> sample_order;
+    std::unordered_set<std::string> seen_samples;
 
     for (const auto& res : heter_res) {
         if (res.locus == "HLA_A" || res.locus == "HLA_B" || res.locus == "HLA_C") {
+            if (seen_samples.insert(res.sampleid).second) {
+                sample_order.push_back(res.sampleid);
+            }
+
             if (mp[res.sampleid].find(res.locus) == mp[res.sampleid].end()) {
                 mp[res.sampleid][res.locus] = res;
             }
@@ -408,7 +414,9 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
     foutg << "sampleid\tHLA_A_allele\tHLA_A_FH\tHLA_B_allele\tHLA_B_FH\tHLA_C_allele\tHLA_C_FH\n";
 
     size_t sample_count = 0;
-    for (const auto& [sampleid, loci] : mp) {
+    for (const auto& sampleid : sample_order) {
+        const auto& loci = mp[sampleid];
+
         auto get_allele = [&](const std::string& loc) -> std::string {
             auto it = loci.find(loc);
             return (it != loci.end()) ? it->second.alleles : "NA";
@@ -416,14 +424,14 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
 
         auto get_fh = [&](const std::string& loc) -> std::string {
             auto it = loci.find(loc);
-            if (it != loci.end()) return std::to_string(it->second.het_hom_fh);
-            return "NA";
+            return (it != loci.end()) ? std::to_string(it->second.het_hom_fh) : "NA";
         };
 
         foutg << sampleid << '\t'
               << get_allele("HLA_A") << '\t' << get_fh("HLA_A") << '\t'
               << get_allele("HLA_B") << '\t' << get_fh("HLA_B") << '\t'
               << get_allele("HLA_C") << '\t' << get_fh("HLA_C") << '\n';
+
         ++sample_count;
     }
 

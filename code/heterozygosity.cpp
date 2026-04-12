@@ -116,7 +116,7 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
                 }
             std::string alleles_str;
             for (const auto& allele : temp_alleles) {
-                alleles_str += allele + "/";
+                alleles_str += allele + " ";
             }
             if(alleles_str.size() == 0){
                 alleles_str = "/";

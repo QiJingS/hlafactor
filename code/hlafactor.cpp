@@ -73,11 +73,11 @@ int main(int argc, char* argv[]) {
     };
 
     if (argc < 2) {
-        std::cerr << "!!ERROR: No options provided. Use -h or --help for usage information.\n";
+        std::cerr << "!!ERROR: No options provided. Use -h or -help for usage information.\n";
         return 1;
     }
 
-    if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "--help") == 0) {
+    if (std::strcmp(argv[1], "-h") == 0 || std::strcmp(argv[1], "-help") == 0) {
         std::cout << helpmsg;
         return 0;
     }
@@ -100,6 +100,15 @@ int main(int argc, char* argv[]) {
         std::cerr << "!!ERROR: Missing required options: -i (input file) and -o (output folder) must both be provided.\n";
         return 1;
     }
+    if (
+        options.size() == 2 &&
+        options.find("-i") != options.end() &&
+        options.find("-o") != options.end()
+    ) {
+        std::cerr << "!!ERROR: At least one additional option must be provided besides -i and -o.\n" << helpmsg;
+        return 1;
+    }
+
     std::string input_path = getArgValue(argc, argv, "-i");
     std::string output_path = getArgValue(argc, argv, "-o");
 

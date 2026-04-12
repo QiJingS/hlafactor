@@ -1,0 +1,11 @@
+SampleID	locus	alleles	miss_match	expression_value
+s1	HLA_A	HLA_A*02 HLA_A*03 		nan
+s2	HLA_A	HLA_A*02 HLA_A*03 HLA_A*01 		nan
+s3	HLA_A	HLA_A*01 		nan
+s4	HLA_A	HLA_A*02 HLA_A*03 HLA_A*01 		nan
+s5	HLA_A	HLA_A*03 		nan
+s6	HLA_A	HLA_A*03 HLA_A*01 		nan
+s7	HLA_A	HLA_A*03 HLA_A*01 		nan
+s8	HLA_A	HLA_A*03 HLA_A*01 		nan
+s9	HLA_A	HLA_A*02 		nan
+s10	HLA_A			nan
