@@ -15,11 +15,11 @@ It supports multiple analytical modules including heterozygosity, expression, su
 
 ## ⏬ Installation
 
-### 🔹 Download binaries
+### 🔹 Download 
 
 ### Linux (x86_64)
 ```bash
-wget wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Linux-x86_64.tar.gz
+wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Linux-x86_64.tar.gz
 tar -xzf hlafactor-0.0.0-Linux-x86_64.tar.gz
 cd hlafactor-0.0.0-Linux-x86_64
 chmod +x hlafactor
@@ -71,7 +71,7 @@ hlafactor -i <input_file> -o <output_folder> -hlarg38|-hlarg19 \
 ## 🧪 2. HLA Downstream Analysis
 
 ```bash
-hlafactor -i <input_file> -o <output_folder> [analysis_option]
+hlafactor -i <input_file> -o <output_folder> [option]
 ```
 
 ### Available analyses
@@ -97,10 +97,29 @@ hlafactor -i <input_file> -o <output_folder> [analysis_option]
   - specified folder, or  
   - current directory if not provided  
 
+## ⚠️ Error Handling and Return Values
+- HLAfactor performs strict validation during parsing and downstream computation to improve robustness and reproducibility.
+- Supported missing / invalid values
+  - Missing values such as NAN, ., or other invalid entries will be treated as missing and propagated as NA in the final output.
+  - If an input value cannot be matched to a valid HLA allele or genotype, the corresponding result will be returned as NA instead of forcing an incorrect calculation.
+- Imputed HLA probabilities
+  - For imputation outputs that are reported as probabilities or dosages, HLAfactor supports both hard-call and probabilistic formats.
+  - For feature calculation, probabilistic genotypes can be rounded to the nearest call when required by the downstream analysis.
+  - For supertype assignment, dosage/probability values would be preserved in the output to retain more original imputation information.
+- Locus-specific genotype requirements
+  - For loci that must follow a strict diploid format, such as HLA-A, HLA-B, and HLA-C, HLAfactor will only compute results after valid allele pairs are matched.
+  - If an imputation platform returns multiple candidate alleles, ambiguous pairs, or unmatched references, the corresponding sample-locus result will be returned as NA.
+- Reference matching report
+  - When alleles or allele pairs cannot be matched to the reference panel used by HLAfactor, the software will generate an additional report listing:
+  - sample ID
+  - gene / locus
+  - unmatched allele or genotype
 ---
 
+## ✅ Multi-platform imputation support
+- HLAfactor is designed to accept HLA imputation results from multiple platforms and output formats, with consistent parsing and standardized downstream processing.
+---
 ## 📥 Supported Input Formats
-
 - `.txt`
 - `.dosage`
 - `.vcf`
@@ -125,7 +144,7 @@ Output files are generated automatically with informative suffixes:
 
 ### QC with allele frequency filtering
 ```bash
-hlafactor -i data.vcf.gz -o results/ -hlarg38 -af 0.01 0.5
+hlafactor -i data.vcf.gz -o results/ -hlarg38 -af 0.01 0.5 -impr2 0.9 1.0
 ```
 
 ### HLA general heterozygosity
