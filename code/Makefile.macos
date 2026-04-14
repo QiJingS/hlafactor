@@ -11,12 +11,13 @@ HTS_LIB := $(PREFIX)/lib/libhts.dylib
 PACKAGE_TAR := $(PKG_DIR).tar.gz
 
 include Makefile.common
-
+ROOT_DIR := $(CURDIR)/..
 package: all
 	rm -rf $(PKG_DIR)
 	mkdir -p $(PKG_DIR)/bin
 	mkdir -p $(PKG_DIR)/lib
+	mkdir -p $(PKG_DIR)/data_input
 	cp $(BUILD_DIR)/$(APP) $(PKG_DIR)/bin/
-	cp README.md $(PKG_DIR)/
 	cp -a $(PREFIX)/lib/libhts.dylib* $(PKG_DIR)/lib/ 2>/dev/null || true
+	cp -a $(CURDIR)/../data_input/. $(PKG_DIR)/data_input/
 	tar -czf $(PACKAGE_TAR) -C $(DIST_DIR) -- $(notdir $(PKG_DIR))

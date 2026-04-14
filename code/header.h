@@ -26,13 +26,16 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-#include <unistd.h>
+
 #include <htslib/hts.h>
 #include <htslib/vcf.h>
-#include <filesystem>
-#include <stdexcept>
 
-#include <unistd.h>
+#if defined(__APPLE__)
+  #include <mach-o/dyld.h>
+#elif defined(__linux__)
+  #include <unistd.h>
+  #include <climits>
+#endif
 
 struct allelescall {
     std::vector<std::string> alleles;
@@ -44,19 +47,33 @@ struct samplerecord {
     std::map<std::string, std::vector<allelescall>> loci;
 };
 
+inline std::filesystem::path get_executable_path() {
+#if defined(__APPLE__)
+    uint32_t size = 0;
+    _NSGetExecutablePath(nullptr, &size);
 
+    std::string buf(size, '\0');
+    if (_NSGetExecutablePath(buf.data(), &size) != 0) {
+        throw std::runtime_error("Cannot locate executable path");
+    }
 
-std::filesystem::path get_executable_path() {
-    char buf[PATH_MAX];
+    return std::filesystem::weakly_canonical(std::filesystem::path(buf.c_str()));
+
+#elif defined(__linux__)
+    char buf[PATH_MAX];         
     ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
     if (len == -1) {
         throw std::runtime_error("Cannot locate executable path");
     }
     buf[len] = '\0';
-    return std::filesystem::path(buf);
+    return std::filesystem::weakly_canonical(std::filesystem::path(buf));
+
+#else
+    throw std::runtime_error("Unsupported platform");
+#endif
 }
 
-std::filesystem::path resource_path(const std::string& filename) {
+inline std::filesystem::path resource_path(const std::string& filename) {
     const auto exe_dir = get_executable_path().parent_path();
     return (exe_dir / ".." / "data_input" / filename).lexically_normal();
 }

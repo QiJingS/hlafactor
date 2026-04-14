@@ -17,6 +17,5 @@ package: all
 	mkdir -p $(PKG_DIR)/bin
 	mkdir -p $(PKG_DIR)/lib
 	cp $(BUILD_DIR)/$(APP) $(PKG_DIR)/bin/
-	cp README.md $(PKG_DIR)/
 	cp -a $(PREFIX)/lib/libhts.so* $(PKG_DIR)/lib/ 2>/dev/null || true
 	tar -czf $(PACKAGE_TAR) -C $(DIST_DIR) -- $(notdir $(PKG_DIR))
