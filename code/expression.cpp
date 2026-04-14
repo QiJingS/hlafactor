@@ -104,7 +104,6 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
                     if (allele.find(':') != std::string::npos) continue;
 
                     ind_temp_dic[allele] += dosage;
-                    ind_temp_dic[allele] += dosage;
                 }
             }
 
@@ -129,7 +128,7 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
                 }
             }
 
-            double final_score = (two_a_finder == 2 && !missing_alleles_exp.empty())
+            double final_score = (two_a_finder == 2 )
                 ? ind_score
                 : std::numeric_limits<double>::quiet_NaN();
 

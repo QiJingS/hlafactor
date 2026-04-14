@@ -1,4 +1,4 @@
-chromosome SNPID rsid position alleleA alleleB NA NA NA NA NA NA NA NA NA NA
+chromosome SNPID rsid position alleleA alleleB S1 S2 S3 S4 S5 S6 S7 S8 S9 S10
 6 HLA_A*01 HLA_A*01 29910247 A T 0 0 0 0 1 1 1 1 0 0
 6 HLA_A*01:01 HLA_A*01:01 29910248 A T 0 0 0 0 1 1 1 1 0 0
 6 HLA_A*01:02 HLA_A*01:02 29910249 A T 0 0 0 0 0 0 0 0 0 0
