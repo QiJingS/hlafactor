@@ -1,10 +1,10 @@
 UNAME_M := $(shell uname -m)
 PLATFORM := Linux-$(UNAME_M)
 
-PREFIX = $(CURDIR)/_install/$(PLATFORM)
+PREFIX    = $(CURDIR)/_install/$(PLATFORM)
 BUILD_DIR = $(CURDIR)/build/$(PLATFORM)
-DIST_DIR = $(CURDIR)/dist
-PKG_DIR = $(DIST_DIR)/$(APP)-$(VERSION)-$(PLATFORM)
+DIST_DIR  = $(CURDIR)/dist
+PKG_DIR   = $(DIST_DIR)/$(APP)-$(VERSION)-$(PLATFORM)
 
 RPATH := -Wl,-rpath,'$$ORIGIN/../lib'
 HTS_LIB := $(PREFIX)/lib/libhts.so
@@ -12,12 +12,27 @@ PACKAGE_TAR := $(PKG_DIR).tar.gz
 
 include Makefile.common
 
+define copy_runtime_deps
+	@for f in $$@; do :; done
+endef
+
 package: all
 	rm -rf $(PKG_DIR)
 	mkdir -p $(PKG_DIR)/bin
 	mkdir -p $(PKG_DIR)/lib
 	mkdir -p $(PKG_DIR)/data_input
+
 	cp $(BUILD_DIR)/$(APP) $(PKG_DIR)/bin/
 	cp -a $(PREFIX)/lib/libhts.so* $(PKG_DIR)/lib/ 2>/dev/null || true
 	cp -a $(CURDIR)/../data_input/. $(PKG_DIR)/data_input/
+
+	@for bin in $(PKG_DIR)/bin/$(APP) $(PKG_DIR)/lib/libhts.so*; do \
+		echo "Scanning $$bin"; \
+		ldd $$bin | awk '/=> \// {print $$3} /^\/.*\.so/ {print $$1}' | \
+		grep -Ev '^(\/lib64\/|\/lib\/|\/usr\/lib64\/|\/usr\/lib\/)' | \
+		while read -r lib; do \
+			[ -f "$$lib" ] && cp -L "$$lib" $(PKG_DIR)/lib/; \
+		done; \
+	done
+
 	tar -czf $(PACKAGE_TAR) -C $(DIST_DIR) -- $(notdir $(PKG_DIR))
