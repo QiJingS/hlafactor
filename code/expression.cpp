@@ -117,7 +117,6 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
                 if (v_int > 0) {
                     final_alleles += key + " ";
                 }
-
                 if (expression_map.count(key)) {
                     two_a_finder += v_int;
                     ind_score += expression_map.at(key) * v_int;
@@ -144,3 +143,4 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
 
     return sam_expression_score_saver;
 }
+
