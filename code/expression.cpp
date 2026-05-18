@@ -115,14 +115,14 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
             for (const auto& [key, value] : ind_temp_dic) {
                 int v_int = static_cast<int>(std::lround(value));
                 if (v_int > 0) {
-                    final_alleles += key + " ";
+                    final_alleles += key + "/";
                 }
                 if (expression_map.count(key)) {
                     two_a_finder += v_int;
                     ind_score += expression_map.at(key) * v_int;
                 } else {
                     if (v_int == 1) {
-                        missing_alleles_exp += key + " ";
+                        missing_alleles_exp += key + "/";
                     }
                 }
             }
@@ -130,7 +130,17 @@ std::vector<alleles_individual_expression_A_C> alleles_expression_A_C_summary(in
             double final_score = (two_a_finder == 2 )
                 ? ind_score
                 : std::numeric_limits<double>::quiet_NaN();
-
+            
+            if(final_alleles.empty()){
+                final_alleles = "NA";
+            } else if (final_alleles.back() == '/') {
+                final_alleles.pop_back();
+            }
+            if(missing_alleles_exp.empty()){
+                missing_alleles_exp = "NA";
+            } else if (missing_alleles_exp.back() == '/') {
+                missing_alleles_exp.pop_back();
+            }
             sam_expression_score_saver.push_back({
                 s.sampleid,
                 locus_name,

@@ -186,9 +186,15 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
         double a = std::get<0>(scores);
         double b = std::get<1>(scores);
         double c = std::get<2>(scores);
+        double raw_a = std::pow(10.0, a);
+        double raw_b = std::pow(10.0, b);
+        double raw_c = std::pow(10.0, c);
+        // double global_score = std::log10(raw_a + raw_b + raw_c);
+
 
         double global_score = (!std::isnan(a) && !std::isnan(b) && !std::isnan(c))
-                              ? (a + b + c)
+                              ? std::log10(raw_a + raw_b + raw_c)
+                            // ? std::log(a + b + c)
                               : std::numeric_limits<double>::quiet_NaN();
 
         foutg << sample_id << '\t'
@@ -356,28 +362,43 @@ void write_hla_heterozygosity_results(const std::vector<ind_heter>& heter_res,
     log_info("Heterozygosity output done.");
 }
 
-void write_HLA_variant_NK_results(const std::vector<sample_variants_NK>& NK_res, const OutputSpec& out) {
+
+void write_HLA_variant_NK_results(
+    const std::vector<sample_variants_NK>& NK_res,
+    const OutputSpec& out)
+{
     log_info("Writing HLA variant NK output...");
     log_info("Input records: " + std::to_string(NK_res.size()));
 
-    std::filesystem::path outg = make_outfile(out, "_HLA_variant_NK");
+    std::filesystem::path outg =
+        make_outfile(out, "_HLA_variant_NK");
+
     std::ofstream foutg(outg);
 
-    if (!foutg) {
-        throw std::runtime_error("Cannot open HLA variant NK output file.");
+    if (!foutg)
+    {
+        throw std::runtime_error(
+            "Cannot open HLA variant NK output file.");
     }
 
-    foutg << "SampleID\tAA_B_-21\tAA_B_82\tAA_C_80\n";
-    for (const auto& res : NK_res) {
+    foutg << "SampleID\tHLA_C_ligand\tHLA_B_ligand\n";
+
+    for (const auto& res : NK_res)
+    {
         foutg << res.sample_id;
-        for (size_t i = 0; i < res.genotypes.size(); ++i) {
+
+        for (size_t i = 0; i < res.genotypes.size(); ++i)
+        {
             foutg << '\t' << res.genotypes[i];
         }
+
         foutg << '\n';
     }
 
     log_info("HLA variant NK output done.");
 }
+
+
 
 void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& heter_res,
                                                  const OutputSpec& out) {

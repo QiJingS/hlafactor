@@ -75,7 +75,20 @@ inline std::filesystem::path get_executable_path() {
 
 inline std::filesystem::path resource_path(const std::string& filename) {
     const auto exe_dir = get_executable_path().parent_path();
-    return (exe_dir / ".." / "data_input" / filename).lexically_normal();
+    const std::vector<std::filesystem::path> candidates = {
+        (exe_dir / ".." / "data_input" / filename).lexically_normal(),
+        (exe_dir / ".." / ".." / "data_input" / filename).lexically_normal(),
+        (std::filesystem::current_path() / "data_input" / filename).lexically_normal(),
+        (std::filesystem::current_path() / ".." / "data_input" / filename).lexically_normal()
+    };
+
+    for (const auto& candidate : candidates) {
+        if (std::filesystem::exists(candidate)) {
+            return candidate;
+        }
+    }
+
+    return candidates.front();
 }
 
 std::vector<samplerecord> parse_txt_file(const std::string& filename);

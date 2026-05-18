@@ -90,16 +90,17 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
                             fh_value = 0;
                         } else if (int_v == 1) {
                             temp_alleles.push_back(a.alleles[k]);
-                            het_hom_ind_temp = "Het";
+                            // het_hom_ind_temp = "Het";
                         }
                         // found = true;
                         // break;
                     }
                 }
-
                 // if (found) break;
             }
-
+            if(temp_alleles.size() == 2){
+                het_hom_ind_temp = "Het";
+            }
             if(temp_alleles.size() == 2){
                 PairKey key(temp_alleles[0], temp_alleles[1]);
                 auto* fh_map = (locus_name == "HLA_A") ? &fh_map_A
