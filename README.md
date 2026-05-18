@@ -272,7 +272,7 @@ This repository includes internal reference tables used by the software, for exa
 If you use HLAfactor in a publication, please cite the associated manuscript or software release when available.
 
 ## License
-
+MIT
 
 ## Acknowledgements
 
