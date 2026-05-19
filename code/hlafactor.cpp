@@ -6,6 +6,7 @@
 #include "input_files_parsers.cpp"
 #include "HLA_class_I_heavy_chain.cpp"
 #include "hlaqc.cpp"
+#include "hla_amiaci.cpp"
 #include "output_layer.cpp"
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -53,13 +54,14 @@ int main(int argc, char* argv[]) {
     "   -impr2           filter variants by imputation r2 in the HLA region\n"
     "\n"
     "2. HLA analysis:\n"
-    "   hlafactor -i <input_file> -o <output_folder> [-tapasin | -het | -hetf | -exp | -sup | -lignk]\n"
+    "   hlafactor -i <input_file> -o <output_folder> [-tapasin | -het | -hetf | -exp | -sup | -lignk | -amac]\n"
     "   -tapasin         compute the tapasin dependence score\n"
     "   -het             compute general heterozygosity for HLA locus\n"
     "   -hetf            compute functional heterozygosity for HLA A/B/C locus\n"
     "   -exp             compute HLA A & C protein expression levels on the cell surface\n"
     "   -sup             compute HLA supertypes (A/B/class II)\n"
     "   -lignk           compute functional HLA markers linked to KIRs: HLA-B -21T/M, HLA-C C1/C2, HLA-B BW4/BW6\n"
+    "   -amac            map HLA amino acid genotypes using IMGT alignments\n"
     "\n"
     "QC and analysis options cannot be combined. \n"
     "Supported input formats: .txt, .dosage, .vcf/.vcf.gz \n"
@@ -69,7 +71,7 @@ int main(int argc, char* argv[]) {
     
     std::unordered_set<std::string> options;
     std::unordered_set<std::string> valid_options = {
-        "-tapasin", "-hetf", "-i", "-o", "-het", "-exp", "-sup", "-lignk", "-af", "-impr2", "-hlarg38", "-hlarg19"
+        "-tapasin", "-hetf", "-i", "-o", "-het", "-exp", "-sup", "-lignk", "-af", "-amac", "-impr2", "-hlarg38", "-hlarg19"
     };
 
     if (argc < 2) {
@@ -154,7 +156,7 @@ int main(int argc, char* argv[]) {
             options.find("-sup") != options.end() ||
             options.find("-lignk") != options.end()) {
             std::string error_msg =
-                "!!ERROR: QC options (-af, -impr2, -hlarg38, -hlarg37) cannot be combined with analysis options (-tapasin, -het, -hetf, -exp, -sup, -lignk).";
+                "!!ERROR: QC options (-af, -impr2, -hlarg38, -hlarg37, -amac) cannot be combined with analysis options (-tapasin, -het, -hetf, -exp, -sup, -lignk).";
             std::cerr << error_msg << '\n' << '\n';
             return 1;
         }
@@ -162,6 +164,7 @@ int main(int argc, char* argv[]) {
 
     bool do_supertypes = options.find("-sup") != options.end();
     bool do_exp = options.find("-exp") != options.end();
+    bool do_aa = options.find("-amac") != options.end();
     bool do_tap = options.find("-tapasin") != options.end();
     bool do_het = options.find("-het") != options.end();
     bool do_lignk = options.find("-lignk") != options.end();
@@ -170,6 +173,15 @@ int main(int argc, char* argv[]) {
     if (do_qc) {
         std::cout << "[INFO] Running QC pipeline...\n";
         function_hla_qc(argc, argv);
+    }else if(do_aa) {
+        std::cout << "\nThanks for using the HLAfactor :)\n";
+        std::cout << "*********************************\n";
+        std::cout << "[INFO] Program started.\n";
+
+        std::cout << "[INFO] Running IMGT amino acid mapping...\n";
+        auto test = map_imgt_amino_acids(argc, argv);
+        auto output_info = get_output_spec(argc, argv, "amac");
+        write_amino_acid_mapping_results(test, output_info);
     } else if (do_supertypes) {
         std::cout << "\nThanks for using the HLAfactor :)\n";
         std::cout << "*********************************\n";

@@ -459,3 +459,79 @@ void write_hla_functional_heterozygosity_results(const std::vector<ind_heter>& h
     std::cout << "[INFO] Functional heterozygosity samples written: " << sample_count << '\n';
     log_info("Functional heterozygosity output done.");
 }
+
+void write_amino_acid_mapping_results(const std::vector<ind_amiaci>& aa_res,
+                                      const OutputSpec& out,
+                                      const std::string& suffix = "_amino_acids") {
+    if (aa_res.empty()) {
+        log_info("Amino acid mapping input is empty, skip writing.");
+        return;
+    }
+
+    log_info("Writing amino acid mapping output...");
+    log_info("Input samples: " + std::to_string(aa_res.size()));
+
+    auto compute_imgt_pos = [](int pos) {
+        if (pos <= 24) {
+            return pos - 25;
+        }
+        return pos - 24;
+    };
+
+    std::filesystem::path outfile = make_outfile(out, suffix);
+    std::ofstream fout(outfile);
+
+    if (!fout) {
+        throw std::runtime_error("Cannot open amino acid mapping output file.");
+    }
+
+    struct AminoAcidOutputRow {
+        int position = 0;
+        std::map<std::string, std::string> sample_to_genotype;
+    };
+
+    std::vector<std::string> sample_order;
+    std::map<std::pair<std::string, int>, AminoAcidOutputRow> table;
+
+    for (const auto& sample : aa_res) {
+        sample_order.push_back(sample.sampleid);
+
+        for (const auto& locus_pair : sample.loci) {
+            for (const auto& aa : locus_pair.second) {
+                auto& row = table[{aa.locus, aa.position}];
+                row.position = aa.position;
+                row.sample_to_genotype[sample.sampleid] = aa.genotype;
+            }
+        }
+    }
+
+    fout << "locus\tpos\tmature_pos";
+    for (const auto& sample_id : sample_order) {
+        fout << '\t' << sample_id;
+    }
+    fout << '\n';
+
+    size_t row_count = 0;
+    for (const auto& entry : table) {
+        fout << entry.first.first << '\t'
+             << entry.second.position << '\t'
+             << compute_imgt_pos(entry.second.position);
+
+        for (const auto& sample_id : sample_order) {
+            fout << '\t';
+
+            auto it = entry.second.sample_to_genotype.find(sample_id);
+            if (it != entry.second.sample_to_genotype.end()) {
+                fout << it->second;
+            } else {
+                fout << '.';
+            }
+        }
+
+        fout << '\n';
+        ++row_count;
+    }
+
+    std::cout << "[INFO] Amino acid rows written: " << row_count << '\n';
+    log_info("Amino acid mapping output done.");
+}
