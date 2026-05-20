@@ -471,13 +471,6 @@ void write_amino_acid_mapping_results(const std::vector<ind_amiaci>& aa_res,
     log_info("Writing amino acid mapping output...");
     log_info("Input samples: " + std::to_string(aa_res.size()));
 
-    auto compute_imgt_pos = [](int pos) {
-        if (pos <= 24) {
-            return pos - 25;
-        }
-        return pos - 24;
-    };
-
     std::filesystem::path outfile = make_outfile(out, suffix);
     std::ofstream fout(outfile);
 
@@ -486,7 +479,7 @@ void write_amino_acid_mapping_results(const std::vector<ind_amiaci>& aa_res,
     }
 
     struct AminoAcidOutputRow {
-        int position = 0;
+        std::string position;
         std::map<std::string, std::string> sample_to_genotype;
     };
 
@@ -498,14 +491,27 @@ void write_amino_acid_mapping_results(const std::vector<ind_amiaci>& aa_res,
 
         for (const auto& locus_pair : sample.loci) {
             for (const auto& aa : locus_pair.second) {
-                auto& row = table[{aa.locus, aa.position}];
+                int position_value = 0;
+
+                try {
+                    position_value =
+                        std::stoi(
+                            aa.position);
+                } catch (...) {
+                    continue;
+                }
+
+                auto& row = table[
+                    {aa.locus, position_value}];
                 row.position = aa.position;
-                row.sample_to_genotype[sample.sampleid] = aa.genotype;
+                row.sample_to_genotype[
+                    sample.sampleid] =
+                    aa.genotype;
             }
         }
     }
 
-    fout << "locus\tpos\tmature_pos";
+    fout << "locus\tpos";
     for (const auto& sample_id : sample_order) {
         fout << '\t' << sample_id;
     }
@@ -514,8 +520,7 @@ void write_amino_acid_mapping_results(const std::vector<ind_amiaci>& aa_res,
     size_t row_count = 0;
     for (const auto& entry : table) {
         fout << entry.first.first << '\t'
-             << entry.second.position << '\t'
-             << compute_imgt_pos(entry.second.position);
+             << entry.second.position;
 
         for (const auto& sample_id : sample_order) {
             fout << '\t';

@@ -30,13 +30,13 @@ Kernel configured for up to 8 processors.
 Processor type: arm64e (ARM64E)
 Processors active: 0 1 2 3 4 5 6 7
 Primary memory available: 16.00 gigabytes
-Default processor set: 514 tasks, 3599 threads, 8 processors
-Load average: 5.84, Mach factor: 3.07
+Default processor set: 661 tasks, 4009 threads, 8 processors
+Load average: 6.14, Mach factor: 3.11
 /bin/machine           = unknown
 /usr/bin/oslevel       = unknown
 /bin/universe          = unknown
 
-PATH: /Users/qijingshen/.codex/tmp/arg0/codex-arg0W75OOj/
+PATH: /Users/qijingshen/.codex/tmp/arg0/codex-arg0QTqyci/
 PATH: /usr/bin/
 PATH: /bin/
 PATH: /usr/sbin/
@@ -566,7 +566,7 @@ configure:5703: checking for srand48_deterministic
 configure:5703: gcc -o conftest  -Wall -g -O2 -fvisibility=hidden   -fvisibility=hidden conftest.c  >&5
 Undefined symbols for architecture arm64:
   "_srand48_deterministic", referenced from:
-      _main in conftest-d1687b.o
+      _main in conftest-b4b09f.o
 ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:5703: $? = 1
@@ -634,7 +634,7 @@ configure:5709: checking for getauxval
 configure:5709: gcc -o conftest  -Wall -g -O2 -fvisibility=hidden   -fvisibility=hidden conftest.c  >&5
 Undefined symbols for architecture arm64:
   "_getauxval", referenced from:
-      _main in conftest-1070ba.o
+      _main in conftest-5d3359.o
 ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:5709: $? = 1
@@ -702,7 +702,7 @@ configure:5715: checking for elf_aux_info
 configure:5715: gcc -o conftest  -Wall -g -O2 -fvisibility=hidden   -fvisibility=hidden conftest.c  >&5
 Undefined symbols for architecture arm64:
   "_elf_aux_info", referenced from:
-      _main in conftest-b3e2b6.o
+      _main in conftest-083705.o
 ld: symbol(s) not found for architecture arm64
 clang: error: linker command failed with exit code 1 (use -v to see invocation)
 configure:5715: $? = 1
@@ -2082,7 +2082,6 @@ on Qijings-MacBook-Pro.local
 config.status:870: creating config.mk
 config.status:870: creating htslib.pc.tmp
 config.status:870: creating config.h
-config.status:1040: config.h is unchanged
 config.status:1066: linking htscodecs_bundled.mk to htscodecs.mk
 
 ## ---------------- ##
