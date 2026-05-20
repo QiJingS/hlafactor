@@ -69,8 +69,7 @@ std::string normalize_query_allele(
     std::string locus =
         cleaned.substr(0, star_pos);
 
-    std::string rest =
-        cleaned.substr(star_pos + 1);
+    std::string rest = cleaned.substr(star_pos + 1);
 
     std::stringstream ss(rest);
 

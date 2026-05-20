@@ -17,8 +17,7 @@ HLAfactor currently supports two mutually exclusive workflows:
    Filter HLA-region variants by genome build, allele frequency, and imputation quality.
 2. **HLA downstream analysis**
    Compute immunogenetic features such as heterozygosity, expression proxies, supertypes, tapasin dependence, and NK-related ligand markers.
-   The `-amac` output includes both precursor `pos` and `mature_pos`.
-   When `pos <= 24`, `mature_pos = pos - 25`; otherwise, `mature_pos = pos - 24`.
+   The `-amac` output reports IMGT protein alignment positions in `pos`.
 
 ## Installation
 

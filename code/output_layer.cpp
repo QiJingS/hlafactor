@@ -73,8 +73,8 @@ void write_expression_outputs(
     log_info("Writing expression outputs...");
     log_info("Input records: " + std::to_string(summary.size()));
 
-    std::filesystem::path outA = make_outfile(out, "_A");
-    std::filesystem::path outC = make_outfile(out, "_C");
+    std::filesystem::path outA = make_outfile(out, "_exp_A");
+    std::filesystem::path outC = make_outfile(out, "_exp_C");
 
     std::ofstream foutA(outA);
     std::ofstream foutC(outC);
@@ -117,10 +117,10 @@ void write_taps_outputs(const std::vector<tapasin_score_per_ind_saver>& taps_sum
     log_info("Writing tapasin outputs...");
     log_info("Input records: " + std::to_string(taps_summary.size()));
 
-    std::filesystem::path outA = make_outfile(out, "_A");
-    std::filesystem::path outB = make_outfile(out, "_B");
-    std::filesystem::path outC = make_outfile(out, "_C");
-    std::filesystem::path outg = make_outfile(out, "_global");
+    std::filesystem::path outA = make_outfile(out, "_taps_A");
+    std::filesystem::path outB = make_outfile(out, "_taps_B");
+    std::filesystem::path outC = make_outfile(out, "_taps_C");
+    std::filesystem::path outg = make_outfile(out, "_taps_global");
 
     std::ofstream foutA(outA);
     std::ofstream foutB(outB);
