@@ -381,7 +381,7 @@ void write_HLA_variant_NK_results(
             "Cannot open HLA variant NK output file.");
     }
 
-    foutg << "SampleID\tHLA_A_ligand\tHLA_C_ligand\tHLA_B_ligand\n";
+    foutg << "SampleID\tHLA_C_ligand\tHLA_B_ligand\n";
 
     for (const auto& res : NK_res)
     {

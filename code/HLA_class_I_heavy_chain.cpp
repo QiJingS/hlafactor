@@ -73,6 +73,8 @@ std::string normalize_nk_ligand(const std::string& ligand)
         normalized.replace(pos, 2, "BW");
     }
 
+    std::replace(normalized.begin(), normalized.end(), '/', '&');
+
     return normalized;
 }
 
@@ -98,10 +100,16 @@ void add_ligand_call(
     }
 }
 
-std::string format_ligands(std::vector<std::string> ligands)
+std::string format_ligands(std::vector<std::string> ligands, bool pad_diploid = true)
 {
     if (ligands.empty()) {
         return "NA";
+    }
+
+    if (pad_diploid) {
+        while (ligands.size() < 2) {
+            ligands.push_back(".");
+        }
     }
 
     std::sort(
@@ -293,7 +301,7 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
 
             if (category == "HLA_A")
             {
-                add_ligand_call(a_ligands, ".", dosage);
+                continue;
             }
             else if (category == "HLA_C")
             {
@@ -305,8 +313,13 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
             }
         }
 
-        var_name.push_back("HLA_A_ligand");
-        genotypes.push_back(format_ligands(a_ligands));
+        for (const auto& ligand : a_ligands)
+        {
+            if (b_ligands.size() >= 2) {
+                break;
+            }
+            b_ligands.push_back(ligand);
+        }
 
         var_name.push_back("HLA_C_ligand");
         genotypes.push_back(format_ligands(c_ligands));
