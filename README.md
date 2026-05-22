@@ -129,7 +129,7 @@ hlafactor -i <input_file> -o <output_prefix> -hlarg38|-hlarg19 \
 Use analysis mode to derive sample-level immunogenetic features from HLA genotype or dosage input.
 
 ```bash
-hlafactor -i <input_file> -o <output_prefix> [-tapasin | -het | -hetf | -exp | -sup | -lignk]
+hlafactor -i <input_file> -o <output_prefix> [-tapasin | -het | -hetf | -exp | -sup | -lignk | -amac]
 ```
 
 ### Analysis modules
@@ -142,6 +142,7 @@ hlafactor -i <input_file> -o <output_prefix> [-tapasin | -het | -hetf | -exp | -
 | `-exp` | Estimate expression-related values for HLA-A and HLA-C |
 | `-sup` | Assign HLA supertypes for supported class I and class II loci |
 | `-lignk` | Compute NK-related HLA markers linked to KIR ligands |
+| `-amac` | Map HLA alleles to amino acid genotypes using IMGT/HLA protein alignments |
 
 ## Supported Input Formats
 
@@ -175,6 +176,7 @@ Typical outputs include:
 | Expression | `sample_A.txt`, `sample_C.txt` |
 | Supertypes | `sample_supertypes.txt` |
 | NK ligands | `sample_HLA_variant_NK.txt` |
+| Amino acid mapping | `sample_amino_acids.txt` |
 
 Representative example outputs are available under `example_output/`.
 
