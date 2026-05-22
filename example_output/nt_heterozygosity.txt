@@ -1,5 +1,5 @@
 SampleID	HLA_A	HLA_B	HLA_C	HLA_DPA1	HLA_DPB1	HLA_DQA1	HLA_DQB1	HLA_DRB1	
-S1	Het	Het	Het	Hom	Het	Het	Het	Het
+S1	Het	NA	Het	Hom	Het	Het	Het	Het
 S2	Het	Het	Het	Hom	Het	Het	Het	Het
 S3	Het	Het	Het	Hom	Het	Het	Het	Het
 S4	Het	Het	Het	Het	Het	Het	Het	Het
