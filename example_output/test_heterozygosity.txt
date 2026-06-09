@@ -1,0 +1,5 @@
+SampleID	HLA_B	HLA_C	
+s1	Hom	Hom
+s2	NA	NA
+s3	NA	NA
+s4	NA	NA

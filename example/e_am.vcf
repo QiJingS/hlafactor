@@ -1,0 +1,11 @@
+##fileformat=VCFv4.2
+##source=example_for_gt_vs_dosage_heterozygosity
+##contig=<ID=6>
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype hard call">
+##FORMAT=<ID=AP1,Number=1,Type=Float,Description="Allele probability for haplotype 1">
+##FORMAT=<ID=AP2,Number=1,Type=Float,Description="Allele probability for haplotype 2">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Genotype probabilities for 0/0,0/1,1/1">
+##FORMAT=<ID=DS,Number=1,Type=Float,Description="Alternate allele dosage">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	s1	s2	s3	s4
+6	29910247	HLA_B*01:01	A	G	.	PASS	.	GT:AP1:AP2:GP:DS	1|1:0.708:0.781:0.063948,0.383104,0.552948:1.589	0|0:0.296:0.291:0.499136,0.414728,0.086136:0.587	0|1:0.102:0.921:0.021000,0.902000,0.077000:1.023	.|.:.:.:.,.,.:.
+6	31238491	HLA_C*01:01	C	T	.	PASS	.	GT:AP1:AP2:GP:DS	1|1:0.950:0.970:0.001000,0.049000,0.950000:1.920	0|0:0.020:0.030:0.951000,0.048000,0.001000:0.050	0|1:0.040:0.960:0.010000,0.930000,0.060000:1.000	.|.:.:.:.,.,.:.
