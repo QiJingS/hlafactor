@@ -40,6 +40,7 @@
 struct allelescall {
     std::vector<std::string> alleles;
     std::vector<double> dosages;
+    std::vector<double> gt_dosages;
 };
 
 struct samplerecord {

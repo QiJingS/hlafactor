@@ -237,13 +237,11 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
         int nret_ds = bcf_get_format_float(hdr, rec, "DS", &ds, &nds);
         bool use_ds = (nret_ds > 0);
 
-        int nret_gt = -1;
-        if (!use_ds) {
-            nret_gt = bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
-        }
+        int nret_gt = bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
 
         for (int i = 0; i < n_samples; ++i) {
             double dosage = std::numeric_limits<double>::quiet_NaN();
+            double gt_dosage = std::numeric_limits<double>::quiet_NaN();
 
             if (use_ds) {
                 if (i < nret_ds) {
@@ -254,7 +252,9 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
                         dosage = static_cast<double>(v);
                     }
                 }
-            } else if (nret_gt > 0) {
+            }
+
+            if (nret_gt > 0) {
                 int base = i * 2;
                 if (base + 1 < nret_gt) {
                     int32_t g1 = gt[base];
@@ -265,15 +265,20 @@ std::vector<samplerecord> parse_vcf_htslib(const std::string& filename) {
                         int a2 = bcf_gt_allele(g2);
 
                         if (a1 >= 0 && a2 >= 0) {
-                            dosage = static_cast<double>((a1 == 1) + (a2 == 1));
+                            gt_dosage = static_cast<double>((a1 == 1) + (a2 == 1));
                         }
                     }
                 }
             }
 
+            if (!use_ds) {
+                dosage = gt_dosage;
+            }
+
             allelescall call;
             call.alleles.push_back(id);
             call.dosages.push_back(dosage);
+            call.gt_dosages.push_back(gt_dosage);
             samples[i].loci[locus].push_back(std::move(call));
         }
     }

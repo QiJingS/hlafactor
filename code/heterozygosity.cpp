@@ -60,6 +60,24 @@ struct ind_heter
     double het_hom_fh;
 };
 
+double heterozygosity_call_dosage(const allelescall& call, size_t k, int& ds_gt_discordant_count) {
+    const bool has_gt = k < call.gt_dosages.size() && std::isfinite(call.gt_dosages[k]);
+    const bool has_ds = k < call.dosages.size() && std::isfinite(call.dosages[k]);
+
+    if (has_gt) {
+        if (has_ds && static_cast<int>(std::round(call.dosages[k])) != static_cast<int>(call.gt_dosages[k])) {
+            ++ds_gt_discordant_count;
+        }
+        return call.gt_dosages[k];
+    }
+
+    if (has_ds) {
+        return call.dosages[k];
+    }
+
+    return std::numeric_limits<double>::quiet_NaN();
+}
+
 std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice) {
     std::vector<ind_heter> saver;
     auto fh_map_A = read_reference_fh("heter_A.txt");
@@ -67,6 +85,7 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
     auto fh_map_C = read_reference_fh("heter_C.txt");
 
     auto samples = parse_file(arg, argv);
+    int ds_gt_discordant_count = 0;
 
     for (const auto& s : samples) {
         for (const auto& [locus_name, allele_calls] : s.loci) {
@@ -82,8 +101,9 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
                         ? (a.alleles[k].find(':') != std::string::npos)
                         : (a.alleles[k].find(':') == std::string::npos);
 
-                    if (a.dosages[k] != 0 && match) {
-                        int int_v = std::round(a.dosages[k]);
+                    double call_dosage = heterozygosity_call_dosage(a, k, ds_gt_discordant_count);
+                    if (std::isfinite(call_dosage) && call_dosage != 0 && match) {
+                        int int_v = std::round(call_dosage);
                         if (int_v == 2) {
                             het_hom_ind_temp = "Hom";
                             temp_alleles.push_back(a.alleles[k]);
@@ -124,6 +144,12 @@ std::vector<ind_heter> map_het_samples(int arg, char* argv[], bool digits_choice
             }
             saver.push_back({s.sampleid, locus_name, het_hom_ind_temp, alleles_str, fh_value});
         }
+    }
+
+    if (ds_gt_discordant_count > 0) {
+        std::cout << "[INFO] Heterozygosity used GT hard calls for "
+                  << ds_gt_discordant_count
+                  << " allele/sample entries where rounded DS disagreed with GT.\n";
     }
 
     return saver;

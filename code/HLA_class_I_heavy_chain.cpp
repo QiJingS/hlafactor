@@ -37,6 +37,7 @@ std::string resolve_nk_lookup_key(
 
     for (const auto& [key, value] : nk_lookup) {
         (void)value;
+
         if (allele.size() >= key.size() &&
             allele.compare(0, key.size(), key) == 0 &&
             key.size() > best_len) {
@@ -56,6 +57,7 @@ std::string nk_category_from_allele(const std::string& allele)
     }
 
     std::string locus = allele.substr(0, star_pos);
+
     if (locus == "HLA_A" || locus == "HLA_B" || locus == "HLA_C") {
         return locus;
     }
@@ -82,6 +84,7 @@ bool allele_prefix_match(const std::string& lhs, const std::string& rhs)
 {
     const std::string& shorter =
         lhs.size() <= rhs.size() ? lhs : rhs;
+
     const std::string& longer =
         lhs.size() <= rhs.size() ? rhs : lhs;
 
@@ -95,37 +98,65 @@ void add_ligand_call(
     const std::string& ligand,
     int dosage)
 {
+    dosage = std::max(0, std::min(dosage, 2));
+
     for (int d = 0; d < dosage; ++d) {
         ligands.push_back(ligand);
     }
 }
 
-std::string format_ligands(std::vector<std::string> ligands, bool pad_diploid = true)
+void sort_ligands(std::vector<std::string>& ligands)
+{
+    std::sort(
+        ligands.begin(),
+        ligands.end(),
+        [](const std::string& lhs, const std::string& rhs) {
+            auto rank = [](const std::string& x) {
+                if (x == ".") {
+                    return 1;
+                }
+
+                if (x == "NA") {
+                    return 2;
+                }
+
+                return 0;
+            };
+
+            int lhs_rank = rank(lhs);
+            int rhs_rank = rank(rhs);
+
+            if (lhs_rank != rhs_rank) {
+                return lhs_rank < rhs_rank;
+            }
+
+            return lhs < rhs;
+        });
+}
+
+std::string format_ligands(std::vector<std::string> ligands)
 {
     if (ligands.empty()) {
         return "NA";
     }
 
-    if (pad_diploid) {
-        while (ligands.size() < 2) {
-            ligands.push_back(".");
-        }
+    sort_ligands(ligands);
+
+    if (ligands.size() > 2) {
+        ligands.resize(2);
     }
 
-    std::sort(
-        ligands.begin(),
-        ligands.end(),
-        [](const std::string& lhs, const std::string& rhs) {
-            if (lhs == ".") return false;
-            if (rhs == ".") return true;
-            return lhs < rhs;
-        });
+    while (ligands.size() < 2) {
+        ligands.push_back("NA");
+    }
 
     std::string out;
+
     for (const auto& ligand : ligands) {
         if (!out.empty()) {
             out += "/";
         }
+
         out += ligand;
     }
 
@@ -141,15 +172,13 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
     std::vector<sample_variants_NK> def_NK;
     def_NK.reserve(samples.size());
 
-    std::unordered_map<std::string,
-        std::pair<std::string, std::string>> nk_lookup;
+    std::unordered_map<std::string, std::pair<std::string, std::string>> nk_lookup;
 
     std::ifstream fin(resource_path("nk_table.txt"));
 
     if (!fin)
     {
-        throw std::runtime_error(
-            "Cannot open nk_table.txt");
+        throw std::runtime_error("Cannot open nk_table.txt");
     }
 
     std::string line;
@@ -158,7 +187,9 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
 
     while (std::getline(fin, line))
     {
-        if (line.empty()) continue;
+        if (line.empty()) {
+            continue;
+        }
 
         std::stringstream ss(line);
 
@@ -169,6 +200,10 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
         std::getline(ss, allele, '\t');
         std::getline(ss, category, '\t');
         std::getline(ss, ligand, '\t');
+
+        if (allele.empty() || category.empty() || ligand.empty()) {
+            continue;
+        }
 
         nk_lookup[normalize_nk_table_allele(allele)] = {
             category,
@@ -184,33 +219,35 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
         std::vector<std::string> genotypes;
 
         std::vector<std::string> a_ligands;
-        std::vector<std::string> c_ligands;
         std::vector<std::string> b_ligands;
+        std::vector<std::string> c_ligands;
 
         std::unordered_map<std::string, int> normalized_dosage;
 
         for (const auto& [locus_name, allele_calls] : s.loci)
         {
+            (void)locus_name;
+
             for (const auto& call : allele_calls)
             {
                 for (size_t k = 0; k < call.alleles.size(); ++k)
                 {
-                    if (call.alleles[k].empty()) continue;
+                    if (call.alleles[k].empty()) {
+                        continue;
+                    }
 
-                    int dosage =
-                        static_cast<int>(
-                            std::round(call.dosages[k]));
-
-                    if (dosage == 0)
-                    {
+                    int dosage = static_cast<int>(std::round(call.dosages[k]));
+                    dosage = std::max(0, std::min(dosage, 2));
+                    if (dosage == 0) {
                         continue;
                     }
 
                     std::string allele = call.alleles[k];
 
                     auto current = normalized_dosage.find(allele);
-                    if (current == normalized_dosage.end() || dosage > current->second)
-                    {
+
+                    if (current == normalized_dosage.end() ||
+                        dosage > current->second) {
                         normalized_dosage[allele] = dosage;
                     }
                 }
@@ -223,6 +260,7 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
         std::vector<std::pair<std::string, int>> allele_dosages(
             normalized_dosage.begin(),
             normalized_dosage.end());
+
         std::sort(
             allele_dosages.begin(),
             allele_dosages.end(),
@@ -230,22 +268,27 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
                 if (lhs.first.size() != rhs.first.size()) {
                     return lhs.first.size() < rhs.first.size();
                 }
+
                 return lhs.first < rhs.first;
             });
 
         for (const auto& [allele, dosage] : allele_dosages)
         {
             std::string lookup_key = resolve_nk_lookup_key(allele, nk_lookup);
+
             if (lookup_key.empty())
             {
                 std::string category = nk_category_from_allele(allele);
+
                 if (category.empty()) {
                     continue;
                 }
 
                 std::string unmatched_key = allele;
+
                 for (const auto& [existing_key, value] : unmatched_dosage) {
                     (void)value;
+
                     if (allele == existing_key ||
                         allele_prefix_match(allele, existing_key)) {
                         unmatched_key = existing_key;
@@ -254,8 +297,9 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
                 }
 
                 auto current = unmatched_dosage.find(unmatched_key);
-                if (current == unmatched_dosage.end() || dosage > current->second.second)
-                {
+
+                if (current == unmatched_dosage.end() ||
+                    dosage > current->second.second) {
                     unmatched_dosage[unmatched_key] = {category, dosage};
                 }
 
@@ -263,8 +307,9 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
             }
 
             auto current = matched_dosage.find(lookup_key);
-            if (current == matched_dosage.end() || dosage > current->second)
-            {
+
+            if (current == matched_dosage.end() ||
+                dosage > current->second) {
                 matched_dosage[lookup_key] = dosage;
             }
         }
@@ -273,29 +318,31 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
         {
             auto it = nk_lookup.find(lookup_key);
 
-            const std::string& category =
-                it->second.first;
+            if (it == nk_lookup.end()) {
+                continue;
+            }
 
-            const std::string& ligand =
-                it->second.second;
+            const std::string& category = it->second.first;
+            const std::string& ligand = it->second.second;
 
             if (category == "HLA_A")
             {
                 add_ligand_call(a_ligands, ligand, dosage);
             }
-            else if (category == "HLA_C")
-            {
-                add_ligand_call(c_ligands, ligand, dosage);
-            }
             else if (category == "HLA_B")
             {
                 add_ligand_call(b_ligands, ligand, dosage);
+            }
+            else if (category == "HLA_C")
+            {
+                add_ligand_call(c_ligands, ligand, dosage);
             }
         }
 
         for (const auto& [allele, value] : unmatched_dosage)
         {
             (void)allele;
+
             const std::string& category = value.first;
             int dosage = value.second;
 
@@ -303,21 +350,39 @@ std::vector<sample_variants_NK> calculate_v_NK(int argc, char* argv[])
             {
                 continue;
             }
-            else if (category == "HLA_C")
-            {
-                add_ligand_call(c_ligands, ".", dosage);
-            }
             else if (category == "HLA_B")
             {
                 add_ligand_call(b_ligands, ".", dosage);
             }
+            else if (category == "HLA_C")
+            {
+                add_ligand_call(c_ligands, ".", dosage);
+            }
         }
+
+        sort_ligands(b_ligands);
+        sort_ligands(c_ligands);
+
+        if (b_ligands.size() > 2) {
+            b_ligands.resize(2);
+        }
+
+        if (c_ligands.size() > 2) {
+            c_ligands.resize(2);
+        }
+
+        /*
+            HLA_A ligand is treated as additional HLA_B ligand source.
+            It is only used when HLA_B has fewer than two ligand calls.
+        */
+        sort_ligands(a_ligands);
 
         for (const auto& ligand : a_ligands)
         {
             if (b_ligands.size() >= 2) {
                 break;
             }
+
             b_ligands.push_back(ligand);
         }
 
