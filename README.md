@@ -7,7 +7,7 @@
 It is designed to work with HLA imputation outputs and related genotype tables, with support for common formats such as `.txt`, `.dosage`, `.vcf`, and `.vcf.gz`.
 
 ## Author
-Qijing Shen
+Qijing Shen, Mathias Viard, Mary Carrington, Gavin Band*, M. Azim Ansari*
 
 ## What HLAfactor Does
 
@@ -26,7 +26,7 @@ Download a prebuilt binary from the GitHub releases page.
 ### Linux (x86_64)
 
 ```bash
-wget https://github.com/QiJingS/hlafactor/releases/download/v3.0.0/hlafactor-3.0.0-Linux-x86_64.tar.gz
+wget https://github.com/QiJingS/hlafactor/releases/download/v3.0.0/hlafactor-0.0.0-Linux-x86_64.tar.gz
 tar -xzf hlafactor-3.0.0-Linux-x86_64.tar.gz
 cd hlafactor-3.0.0-Linux-x86_64
 chmod +x hlafactor
@@ -36,9 +36,9 @@ chmod +x hlafactor
 ### macOS (Apple Silicon / arm64)
 
 ```bash
-wget https://github.com/QiJingS/hlafactor/releases/download/v3.0.0/hlafactor-3.0.0-Darwin-arm64.tar.gz
-tar -xzf hlafactor-3.0.0-Darwin-arm64.tar.gz
-cd hlafactor-3.0.0-Darwin-arm64
+wget https://github.com/QiJingS/hlafactor/releases/download/v3.0.0/hlafactor-0.0.0-Darwin-arm64.tar.gz
+tar -xzf hlafactor-0.0.0-Darwin-arm64.tar.gz
+cd hlafactor-0.0.0-Darwin-arm64
 chmod +x hlafactor
 ./hlafactor
 ```
@@ -46,7 +46,7 @@ chmod +x hlafactor
 If you only want to see the command-line help:
 
 ```bash
-./hlafactor
+./hlafactor -h
 ```
 
 ## Build Requirements
