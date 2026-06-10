@@ -1,6 +1,6 @@
 # HLAfactor
 
-<img src="Qijing_TCR.jpeg" width="600" alt="HLAfactor banner">
+<img src="Qijing_TCR.jpeg" width="800" alt="HLAfactor banner">
 
 **HLAfactor** is a command-line tool for **HLA (Human Leukocyte Antigen) quality control (QC)** and **downstream immunogenetic feature analysis**.
 
