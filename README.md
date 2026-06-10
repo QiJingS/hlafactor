@@ -10,7 +10,7 @@ It is designed to work with HLA imputation outputs and related genotype tables, 
 Qijing Shen, Mathias Viard, Mary Carrington, Gavin Band† and M. Azim Ansari†
 
 
-## What HLAfactor Does
+## What HLAfactor does
 
 HLAfactor currently supports two mutually exclusive workflows:
 
@@ -34,7 +34,7 @@ chmod +x hlafactor
 ./hlafactor
 ```
 
-### macOS (Apple Silicon / arm64)
+### macOS (arm64)
 
 ```bash
 wget https://github.com/QiJingS/hlafactor/releases/download/v3.0.0/hlafactor-0.0.0-Darwin-arm64.tar.gz
@@ -50,7 +50,7 @@ If you only want to see the command-line help:
 ./hlafactor -h
 ```
 
-## Build Requirements
+## Build requirements
 
 HLAfactor is developed in **C++20** and is recommended to be built with **GCC 12.3.0** or a compatible compiler that provides solid C++20 support.
 
@@ -74,7 +74,7 @@ If your system default compiler is not GCC 12.3.0, you can explicitly point `mak
 make CXX=g++-12
 ```
 
-## Quick Start
+## Quick start
 
 Run QC on a VCF input:
 
@@ -94,13 +94,13 @@ Run supertype assignment on a dosage input:
 hlafactor -i example/example.dosage -o results -sup
 ```
 
-## Basic Usage
+## Basic usage
 
 ```bash
 hlafactor [options]
 ```
 
-## Required Arguments
+## Required arguments
 
 | Option | Description |
 | --- | --- |
@@ -125,7 +125,7 @@ hlafactor -i <input_file> -o <output_prefix> -hlarg38|-hlarg19 \
 | `-af` | Filter variants by allele frequency range |
 | `-impr2` | Filter variants by imputation `R^2` range |
 
-## Workflow 2: HLA Downstream Analysis
+## Workflow 2: HLA downstream analysis
 
 Use analysis mode to derive sample-level immunogenetic features from HLA genotype or dosage input.
 
@@ -145,7 +145,7 @@ hlafactor -i <input_file> -o <output_prefix> [-tapasin | -het | -hetf | -exp | -
 | `-lignk` | Compute NK-related HLA markers linked to KIR ligands |
 | `-amac` | Map HLA alleles to amino acid genotypes using IMGT/HLA protein alignments |
 
-## Supported Input Formats
+## Supported input formats
 
 HLAfactor accepts multiple common imputation or genotype representations:
 
@@ -181,7 +181,7 @@ Typical outputs include:
 
 Representative example outputs are available under `example_output/`.
 
-## Example Commands
+## Example commands
 
 ### QC with allele frequency and imputation quality filtering
 
@@ -225,14 +225,14 @@ hlafactor -i example/example.txt -o results -lignk
 hlafactor -i example/example.txt -o results -tapasin
 ```
 
-## Important Notes
+## Important notes
 
 - QC options and downstream analysis options cannot be combined in the same run.
 - Use exactly one workflow per command: either QC or one downstream analysis module.
 - HLAfactor expects input values to be interpretable as valid HLA alleles, allele pairs, dosages, or supported variant encodings.
 - Some downstream analyses require valid diploid allele pairs at specific loci, especially HLA-A, HLA-B, and HLA-C.
 
-## Missing Values and Error Handling
+## Missing values and error handling
 
 HLAfactor performs strict validation during parsing and downstream computation to improve robustness and reproducibility.
 
@@ -243,7 +243,7 @@ HLAfactor performs strict validation during parsing and downstream computation t
 - For supertype-related output, dosage-style values may be retained to preserve more of the original imputation information.
 - When alleles or allele pairs cannot be matched to the internal reference panel, HLAfactor may generate an additional mismatch report containing the sample ID, gene/locus, and unmatched allele or genotype.
 
-## Included Reference Resources
+## Included reference resources
 
 This repository includes internal reference tables used by the software, for example:
 
@@ -262,7 +262,7 @@ This repository includes internal reference tables used by the software, for exa
 - Multiple immunogenetic feature modules
 - Support for both hard-call and dosage-style HLA data
 
-## Repository Layout
+## Repository layout
 
 | Path | Description |
 | --- | --- |
