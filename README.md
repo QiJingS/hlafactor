@@ -31,8 +31,7 @@ Download a prebuilt binary from the GitHub releases page.
 wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/-0.0.0-Linux-x86_64.tar.gz
 tar -xzf -0.0.0-Linux-x86_64.tar.gz
 cd hlafactor-6.0.0-Linux-x86_64
-chmod +x hlafactor
-./hlafactor
+./bin/hlafactor 
 ```
 
 ### macOS (arm64)
@@ -41,8 +40,7 @@ chmod +x hlafactor
 wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/-0.0.0-Darwin-arm64.tar.gz
 tar -xzf -0.0.0-Darwin-arm64.tar.gz
 cd hlafactor-6.0.0-Darwin-arm64
-chmod +x hlafactor
-./hlafactor
+./bin/hlafactor 
 ```
 
 If you only want to see the command-line help:
