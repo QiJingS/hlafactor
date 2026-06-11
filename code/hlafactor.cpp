@@ -47,9 +47,9 @@ int main(int argc, char* argv[]) {
     "  -h, --help        show this help message\n"
     "\n"
     "1. HLA QC:\n"
-    "   hlafactor -i <input_file> -o <output_folder> -hlarg38|-hlarg19 [-af <min> [<max>]] [-impr2 <min> [<max>]]\n"
+    "   hlafactor -i <input_file> -o <output_folder> -hlarg38|-hlarg37 [-af <min> [<max>]] [-impr2 <min> [<max>]]\n"
     "   -hlarg38        use hg38 (GRCh38) coordinates for QC\n"
-    "   -hlarg19        use hg19 (GRCh19) coordinates for QC\n"
+    "   -hlarg37        use hg19 (GRCh37) coordinates for QC\n"
     "   -af              filter variants by allele frequency in the HLA region\n"
     "   -impr2           filter variants by imputation r2 in the HLA region\n"
     "\n"
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
     
     std::unordered_set<std::string> options;
     std::unordered_set<std::string> valid_options = {
-        "-tapasin", "-hetf", "-i", "-o", "-het", "-exp", "-sup", "-lignk", "-af", "-amac", "-impr2", "-hlarg38", "-hlarg19"
+        "-tapasin", "-hetf", "-i", "-o", "-het", "-exp", "-sup", "-lignk", "-af", "-amac", "-impr2", "-hlarg38", "-hlarg37"
     };
 
     if (argc < 2) {
@@ -143,11 +143,23 @@ int main(int argc, char* argv[]) {
             return 1;
         }
     }
-    parse_file(argc, argv);
     bool do_qc = options.find("-af") != options.end() ||
                  options.find("-impr2") != options.end() ||
                  options.find("-hlarg38") != options.end() ||
-                 options.find("-hlarg19") != options.end();
+                 options.find("-hlarg37") != options.end();
+
+    if (do_qc &&
+        options.find("-impr2") != options.end()) {
+        std::filesystem::path input_fs_path(input_path);
+        std::string ext = input_fs_path.extension().string();
+        if (ext == ".txt" || ext == ".dosage") {
+            std::cerr << "!!ERROR: r2 filtering requires imputation R2 information, but "
+                      << ext << " input does not contain an R2 field.\n";
+            return 1;
+        }
+    }
+
+    parse_file(argc, argv);
 
     if (do_qc) {
         if (options.find("-tapasin") != options.end() ||

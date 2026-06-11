@@ -111,7 +111,7 @@ hlafactor [options]
 Use QC mode when the input contains HLA-region variants and you want to apply coordinate-aware variant filtering.
 
 ```bash
-hlafactor -i <input_file> -o <output_prefix> -hlarg38|-hlarg19 \
+hlafactor -i <input_file> -o <output_prefix> -hlarg38|-hlarg37 \
           [-af <min> [<max>]] [-impr2 <min> [<max>]]
 ```
 
@@ -120,7 +120,7 @@ hlafactor -i <input_file> -o <output_prefix> -hlarg38|-hlarg19 \
 | Option | Description |
 | --- | --- |
 | `-hlarg38` | Use hg38 / GRCh38 coordinates |
-| `-hlarg19` | Use hg19 coordinates |
+| `-hlarg37` | Use hg19 / GRCh37 coordinates |
 | `-af` | Filter variants by allele frequency range |
 | `-impr2` | Filter variants by imputation `R^2` range |
 
@@ -280,4 +280,3 @@ MIT
 ## Acknowledgements
 
 Thanks to all contributors, collaborators, and users who helped test and improve HLAfactor.
-
