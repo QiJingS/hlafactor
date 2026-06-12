@@ -27,7 +27,7 @@ Download a prebuilt binary from the GitHub releases page.
 ### Linux (x86_64)
 
 ```bash
-wget "https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Linux-x86_64.tar.gz"
+wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Linux-x86_64.tar.gz
 tar -xzf "hlafactor-0.0.0-Linux-x86_64.tar.gz"
 cd "hlafactor-0.0.0-Linux-x86_64"
 ./bin/hlafactor
@@ -35,7 +35,7 @@ cd "hlafactor-0.0.0-Linux-x86_64"
 ### macOS (arm64)
 
 ```bash
-wget "https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Darwin-arm64.tar.gz"
+wget https://github.com/QiJingS/hlafactor/releases/download/v0.0.0/hlafactor-0.0.0-Darwin-arm64.tar.gz
 tar -xzf "hlafactor-0.0.0-Darwin-arm64.tar.gz"
 cd "hlafactor-0.0.0-Darwin-arm64"
 ./bin/hlafactor
