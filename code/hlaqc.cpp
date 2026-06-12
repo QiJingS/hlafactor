@@ -18,9 +18,7 @@ bool is_chr6(const std::string& chr) {
 bool id_starts_with_HLA_or_AA(bcf1_t* rec) {
     bcf_unpack(rec, BCF_UN_STR);
     if (!rec->d.id) return false;
-
     std::string id = rec->d.id;
-
     return (id.rfind("HLA", 0) == 0) ||
            (id.rfind("AA_B_82", 0) == 0) ||
            (id.rfind("AA_B_-21", 0) == 0) ||
@@ -49,39 +47,32 @@ static std::string choose_hts_mode(const std::string& output) {
 
 static bool calculate_af_from_gt(bcf_hdr_t* hdr, bcf1_t* rec, int n_samples, float& af) {
     if (n_samples <= 0) return false;
-
     int32_t* gt_arr = NULL;
     int ngt_arr = 0;
     int nret = bcf_get_genotypes(hdr, rec, &gt_arr, &ngt_arr);
-
     if (nret <= 0) {
         free(gt_arr);
         return false;
     }
-
     int ploidy = nret / n_samples;
     if (ploidy <= 0) {
         free(gt_arr);
         return false;
     }
-
     int alt_count = 0;
     for (int i = 0; i < n_samples; ++i) {
         int base = i * ploidy;
         int alleles_to_read = std::min(ploidy, 2);
-
         for (int j = 0; j < alleles_to_read; ++j) {
             int32_t gt = gt_arr[base + j];
             if (gt == bcf_int32_vector_end) break;
             if (bcf_gt_is_missing(gt)) continue;
-
             int allele = bcf_gt_allele(gt);
             if (allele > 0) {
                 ++alt_count;
             }
         }
     }
-
     af = static_cast<float>(alt_count) / static_cast<float>(n_samples * 2);
     free(gt_arr);
     return true;
@@ -101,7 +92,6 @@ static bool qc_is_missing_token(const std::string& token) {
 
 static bool qc_parse_dosage(const std::string& token, double& value) {
     if (qc_is_missing_token(token)) return false;
-
     try {
         size_t pos = 0;
         value = std::stod(token, &pos);
@@ -110,7 +100,6 @@ static bool qc_parse_dosage(const std::string& token, double& value) {
         return false;
     }
 }
-
 static bool qc_id_starts_with_HLA_or_AA(const std::string& id) {
     return (id.rfind("HLA", 0) == 0) ||
            (id.rfind("AA_B_82", 0) == 0) ||
@@ -124,7 +113,6 @@ static bool passes_af_filter(double af, float af_min, float af_max,
     if (use_af_max && af > af_max) return false;
     return true;
 }
-
 static bool prepare_text_output(const std::string& output, const std::string& default_filename,
                                 std::ofstream& fout, std::string& outpath) {
     outpath = resolve_output_path(output, default_filename);

@@ -86,8 +86,7 @@ std::vector<std::pair<size_t, int>> parse_protein_position_anchors(const std::st
     std::vector<std::pair<size_t, int>> anchors;
     size_t i = 0;
     while (i < prot_line.size()) {
-        if (prot_line[i] != '-'&& !std::isdigit(
-                static_cast<unsigned char>(prot_line[i]))) {
+        if (prot_line[i] != '-'&& !std::isdigit(static_cast<unsigned char>(prot_line[i]))) {
             ++i;
             continue;
         }
@@ -103,9 +102,7 @@ std::vector<std::pair<size_t, int>> parse_protein_position_anchors(const std::st
             continue;
         }
         try {
-            anchors.emplace_back(
-                start,
-                std::stoi(prot_line.substr(start,i - start)));
+            anchors.emplace_back(start, std::stoi(prot_line.substr(start,i - start)));
         } catch (...) {
             continue;
         }
@@ -113,8 +110,7 @@ std::vector<std::pair<size_t, int>> parse_protein_position_anchors(const std::st
     return anchors;
 }
 
-std::vector<std::string> build_reference_positions(const std::string& raw_segment, size_t segment_start, 
-    const std::vector<std::pair<size_t, int>>& anchors)
+std::vector<std::string> build_reference_positions(const std::string& raw_segment, size_t segment_start, const std::vector<std::pair<size_t, int>>& anchors)
 {
     std::vector<size_t> residue_columns;
     for (size_t col = 0; col < raw_segment.size(); ++col) {
@@ -152,48 +148,23 @@ std::vector<std::string> build_reference_positions(const std::string& raw_segmen
     {
         return anchor.second == 1;
     });
-
-    if (anchor_it
-        == residue_anchors.end()) {
-
-        anchor_it =
-            residue_anchors.begin();
+    if (anchor_it == residue_anchors.end()) {
+        anchor_it = residue_anchors.begin();
     }
 
-    const size_t anchor_index =
-        anchor_it->first;
-
-    const int anchor_value =
-        anchor_it->second;
-
-    for (size_t i = 0;
-         i < residue_columns.size();
-         ++i) {
-
+    const size_t anchor_index = anchor_it->first;
+    const int anchor_value = anchor_it->second;
+    for (size_t i = 0; i < residue_columns.size();++i) {
         int position = 0;
-
         if (anchor_value == 1) {
-
             if (i < anchor_index) {
-
-                position =
-                    -static_cast<int>(
-                        anchor_index - i);
-
+                position = -static_cast<int>(anchor_index - i);
             } else {
-
-                position =
-                    1 + static_cast<int>(
-                            i - anchor_index);
+                position = 1 + static_cast<int>(i - anchor_index);
             }
 
         } else {
-
-            position =
-                anchor_value
-                + static_cast<int>(i)
-                - static_cast<int>(
-                    anchor_index);
+            position = anchor_value + static_cast<int>(i) - static_cast<int>(anchor_index);
         }
 
         positions.push_back(
@@ -231,12 +202,8 @@ void append_reference_segment( AlignmentData& data, const std::string& raw_segme
 std::string decode_alignment_char( char reference_char, char allele_char)
 {
     if (allele_char == '-') {
-        if (reference_char != '\0' &&
-            reference_char != ' ' &&
-            reference_char != '\t') {
-            return std::string(
-                1,
-                reference_char);
+        if (reference_char != '\0' && reference_char != ' ' && reference_char != '\t') {
+            return std::string(1,reference_char);
         }
         return "NA";
     }
@@ -367,65 +334,21 @@ AlignmentData parse_imgt_alignment(const std::string& filename){
 std::vector<std::string> get_alignment_files()
 {
     return {
-        resource_path(
-            "IMGTHLA/alignments/A_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/B_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/C_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DPA1_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DPB1_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DQA1_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DQB1_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DRA_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DRB1_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DRB3_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DRB4_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/DRB5_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/E_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/F_prot.txt")
-            .string(),
-
-        resource_path(
-            "IMGTHLA/alignments/G_prot.txt")
-            .string()
+        resource_path("IMGTHLA/alignments/A_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/B_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/C_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DPA1_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DPB1_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DQA1_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DQB1_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DRA_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DRB1_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DRB3_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DRB4_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/DRB5_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/E_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/F_prot.txt").string(),
+        resource_path("IMGTHLA/alignments/G_prot.txt").string()
     };
 }
 
