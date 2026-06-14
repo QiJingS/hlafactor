@@ -76,19 +76,19 @@ make CXX=g++-12
 Run QC on a VCF input:
 
 ```bash
-hlafactor -i example/example.vcf -o results -hlarg38 -af 0.01 0.5 -impr2 0.9 1.0
+hlafactor -i example/example.vcf -o results.txt -hlarg38 -af 0.01 0.5 -impr2 0.9 1.0
 ```
 
 Run heterozygosity analysis on a text input:
 
 ```bash
-hlafactor -i example/example.txt -o results -het
+hlafactor -i example/example.txt -o results.txt -het
 ```
 
 Run supertype assignment on a dosage input:
 
 ```bash
-hlafactor -i example/example.dosage -o results -sup
+hlafactor -i example/example.dosage -o results.txt -sup
 ```
 
 ## Basic usage
@@ -183,25 +183,25 @@ Representative example outputs are available under `example_output/`.
 ### QC with allele frequency and imputation quality filtering
 
 ```bash
-hlafactor -i example/example.vcf -o results -hlarg38 -af 0.01 0.5 -impr2 0.9 1.0
+hlafactor -i example/example.vcf -o results.txt -hlarg38 -af 0.01 0.5 -impr2 0.9 1.0
 ```
 
 ### General heterozygosity
 
 ```bash
-hlafactor -i example/example.txt -o results -het
+hlafactor -i example/example.txt -o results.txt -het
 ```
 
 ### Functional heterozygosity
 
 ```bash
-hlafactor -i example/example.txt -o results -hetf
+hlafactor -i example/example.txt -o results.txt -hetf
 ```
 
 ### Expression-related analysis
 
 ```bash
-hlafactor -i example/example.txt -o results -exp
+hlafactor -i example/example.txt -o results.txt -exp
 ```
 
 ### Supertype assignment
@@ -213,7 +213,7 @@ hlafactor -i example/example.dosage -o results -sup
 ### NK-related ligand markers
 
 ```bash
-hlafactor -i example/example.txt -o results -lignk
+hlafactor -i example/example.txt -o results.txt -lignk
 ```
 
 ### Tapasin dependence

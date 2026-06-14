@@ -33,8 +33,26 @@ double parse_dosage_token(const std::string& token) {
 }
 
 std::string locus_from_allele_name(const std::string& allele) {
+    static const std::vector<std::string> known_loci = {
+        "DRB1", "DRB3", "DRB4", "DRB5", "DPA1", "DPB1", "DQA1", "DQB1",
+        "DMA", "DMB", "DOA", "DOB", "DRA", "A", "B", "C", "E", "F", "G"
+    };
+
     auto pos = allele.find('*');
     if (pos == std::string::npos) {
+        std::string cleaned = allele;
+        if (cleaned.rfind("HLA_", 0) == 0 || cleaned.rfind("HLA-", 0) == 0) {
+            cleaned = cleaned.substr(4);
+        }
+
+        for (const auto& locus : known_loci) {
+            if (cleaned.rfind(locus, 0) == 0 &&
+                cleaned.size() > locus.size() &&
+                std::isdigit(static_cast<unsigned char>(cleaned[locus.size()]))) {
+                return "HLA_" + locus;
+            }
+        }
+
         return allele;
     }
     return allele.substr(0, pos);

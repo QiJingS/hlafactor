@@ -28,7 +28,7 @@ bool starts_with(const std::string& s,const std::string& prefix)
 
 std::string strip_hla_prefix(const std::string& value)
 {
-    if (starts_with(value, "HLA_")) {
+    if (starts_with(value, "HLA_") || starts_with(value, "HLA-")) {
         return value.substr(4);
     }
     return value;
@@ -39,12 +39,69 @@ std::string normalize_locus_name(const std::string& locus)
     return strip_hla_prefix(locus);
 }
 
+bool split_compact_hla_allele(const std::string& allele, std::string& locus, std::string& rest)
+{
+    static const std::vector<std::string> known_loci = {
+        "DRB1", "DRB3", "DRB4", "DRB5", "DPA1", "DPB1", "DQA1", "DQB1",
+        "DMA", "DMB", "DOA", "DOB", "DRA", "A", "B", "C", "E", "F", "G"
+    };
+
+    for (const auto& candidate : known_loci) {
+        if (allele.rfind(candidate, 0) != 0) {
+            continue;
+        }
+        std::string candidate_rest = allele.substr(candidate.size());
+        if (candidate_rest.size() < 2 ||
+            !std::isdigit(static_cast<unsigned char>(candidate_rest[0]))) {
+            continue;
+        }
+        locus = candidate;
+        rest = candidate_rest;
+        return true;
+    }
+
+    return false;
+}
+
+std::string normalize_compact_hla_allele(const std::string& allele)
+{
+    std::string locus;
+    std::string rest;
+    if (!split_compact_hla_allele(allele, locus, rest)) {
+        return allele;
+    }
+
+    std::string digits;
+    std::string suffix;
+    for (char c : rest) {
+        if (std::isdigit(static_cast<unsigned char>(c))) {
+            digits.push_back(c);
+        } else {
+            suffix.push_back(c);
+        }
+    }
+
+    if (digits.size() < 2) {
+        return allele;
+    }
+
+    std::string normalized = locus + "*" + digits.substr(0, 2);
+    if (digits.size() >= 4) {
+        normalized += ":" + digits.substr(2, 2);
+    }
+    return normalized + suffix;
+}
+
 std::string normalize_query_allele(const std::string& allele)
 {
     std::string cleaned = strip_hla_prefix(allele);
     auto star_pos = cleaned.find('*');
     if (star_pos == std::string::npos) {
-        return cleaned;
+        cleaned = normalize_compact_hla_allele(cleaned);
+        star_pos = cleaned.find('*');
+        if (star_pos == std::string::npos) {
+            return cleaned;
+        }
     }
     std::string locus = cleaned.substr(0, star_pos);
     std::string rest = cleaned.substr(star_pos + 1);
