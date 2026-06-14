@@ -7,7 +7,7 @@
 It is designed to work with HLA imputation outputs and related genotype tables, with support for common formats such as `.txt`, `.dosage`, `.vcf`, and `.vcf.gz`.
 
 ## Author
-Qijing Shen, Mathias Viard, Mary Carrington, Gavin Band† and M. Azim Ansari†
+Qijing Shen*, Mathias Viard, Mary Carrington, Gavin Band† and M. Azim Ansari†
 
 
 ## What HLAfactor does
