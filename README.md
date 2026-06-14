@@ -219,7 +219,7 @@ hlafactor -i example/example.txt -o results.txt -lignk
 ### Tapasin dependence
 
 ```bash
-hlafactor -i example/example.txt -o results -tapasin
+hlafactor -i example/example.txt -o results.txt -tapasin
 ```
 
 ## Important notes
